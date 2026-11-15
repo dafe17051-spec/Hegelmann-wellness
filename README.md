@@ -1,6 +1,6 @@
-# Hegelmann Wellness y RPE
+# Hegelmann Wellness & RPE
 
-App web para el primer equipo: wellness diario, RPE de sesión, chat con el preparador físico y panel del staff.
+Web app for the first team: daily wellness, session RPE, chat with the fitness coach and a staff dashboard.
 
 - `index.html`: la app completa (una sola página, sin dependencias).
 - `supabase/schema.sql`: tablas y funciones de la base de datos (Supabase). Las tablas no son accesibles directamente; todo pasa por funciones que validan el código del jugador o del staff.

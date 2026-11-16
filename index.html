@@ -317,6 +317,7 @@ function vPanel(){
    tile("Average load of the day",lm==null?"–":Math.round(lm)+'<small> AU</small>',lds.length?lds.length+" RPE received (RPE × minutes)":"No RPE this day")+
    tile("Available",disp+'<small> / '+tot+'</small>',(tot-disp)+" limited, injured or out")+'</div>';
   var at=red.concat(amb);
+  h+=vReminder(rows,d);
   h+='<div class="card"><h3>Who to check today</h3>'+(at.length?'<div class="att">'+at.map(function(r){return '<button data-act="sp" data-v="'+r.p.id+'"><span><span class="pill '+r.st.st+'">'+(r.st.st==="r"?"● Red":"▲ Amber")+'</span> <b>'+esc(r.p.name)+'</b></span><span class="muted small">'+esc(r.st.why.join(" · "))+(r.st.e.c?' · “'+esc(r.st.e.c)+'”':'')+'</span></button>'}).join("")+'</div>':'<p class="muted">'+(resp.length?"Nobody in amber or red with this day's answers.":"No wellness answers for this day yet.")+'</p>')+'</div>';
   if(S.sp&&S.players[S.sp])h+=vDetalle(S.sp);
   h+='<div class="card"><div class="row between"><h3>Squad · '+fd(d)+'</h3><span class="muted small">Tap a row to see the player. Scale 1-10: higher is worse.</span></div><div class="tw"><table><thead><tr><th>Player</th><th>Status</th>'+ITEMS.map(function(it){return '<th>'+it.sh+'</th>'}).join("")+'<th>Total</th><th>Vs. own avg</th><th>Flag</th><th>Day load</th><th>7-day load</th></tr></thead><tbody>'+
@@ -331,6 +332,12 @@ function vPanel(){
   return h;
 }
 function tile(k,v,d){return '<div class="tile"><span class="k">'+k+'</span><span class="v">'+v+'</span><span class="d">'+d+'</span></div>'}
+function missing(rows,kind){return rows.filter(function(r){return r.p.status!=="les"&&(kind==="w"?!r.st:r.ld==null)}).map(function(r){return r.p})}
+function remindText(kind,ps,d){var day=d===today()?"today":fd(d),names=ps.map(function(p){return "• "+p.name}).join("\n"),url=location.origin+location.pathname;
+  return (kind==="w"?"Wellness reminder for "+day+". Still missing:\n"+names+"\n\nPlease fill it in before training (1 minute):\n":"Session RPE reminder for "+day+". Still missing:\n"+names+"\n\nPlease send it now (10 to 30 minutes after the session):\n")+url}
+function vReminder(rows,d){var mw=missing(rows,"w"),mr=missing(rows,"r");
+  function line(kind,ps,label){return '<div class="row between" style="gap:8px"><span><b>'+label+'</b> <span class="muted small">'+(ps.length?ps.length+" missing: "+esc(ps.map(function(p){return p.name}).join(", ")):"Everyone has sent it")+'</span></span>'+(ps.length?'<span class="row" style="gap:6px"><button class="btn sm" data-act="remind" data-v="'+kind+'">Copy reminder</button><a class="btn sm" href="https://wa.me/?text='+encodeURIComponent(remindText(kind,ps,d))+'" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">Open WhatsApp</a></span>':'')+'</div>'}
+  return '<div class="card"><h3>Reminders · '+fd(d)+'</h3>'+line("w",mw,"Wellness")+line("r",mr,"Session RPE")+'<p class="muted small">Injured players are left out. “Open WhatsApp” lets you pick the team group or a chat; the message includes the app link.</p><div id="remout"></div></div>'}
 function teamW(date){var v=[];activos().forEach(function(p){var e=wOf(p.id,date);if(e)v.push(wTotal(e))});return mean(v)}
 function teamL(date){var v=[];activos().forEach(function(p){var l=loadDay(p.id,date);if(l!=null)v.push(l)});return mean(v)}
 function vDetalle(pid){var p=S.players[pid],d=S.date,days=[];for(var j=27;j>=0;j--)days.push(addDays(d,-j));
@@ -447,6 +454,9 @@ var ACT={
  confirm:function(v){S.confirm=v},
  delp:function(v){S.confirm=null;if(S.sp===v)S.sp=null;if(S.chat===v)S.chat=null;delete S.players[v];call("staff_delete_player",{p_id:v}).then(refresh,function(){refresh()})},
  savenote:function(v){var el=document.getElementById("d-note");savePlayer(v,{note:el.value.trim()}).then(function(){toast("Note saved")})},
+ remind:function(v){var d=S.date,rows=activos().map(function(p){return {p:p,st:estado(p.id,d),ld:loadDay(p.id,d)}}),txt=remindText(v,missing(rows,v),d);
+   function fb(){var o=document.getElementById("remout");if(!o)return;o.innerHTML='<textarea id="remta" rows="7" readonly></textarea>';var ta=document.getElementById("remta");ta.value=txt;ta.select();toast("Select the text and copy it")}
+   try{navigator.clipboard.writeText(txt).then(function(){toast("Reminder copied. Paste it in WhatsApp")},fb)}catch(x){fb()}return "norender"},
  copylink:function(v){var p=S.players[v],url=location.origin+location.pathname+"#c="+p.code;
    try{navigator.clipboard.writeText(url).then(function(){toast(p.name+"'s link copied")},function(){toast(p.name+"'s code: "+p.code)})}catch(x){toast(p.name+"'s code: "+p.code)}return "norender"},
  setcode:function(){var p=(D.newcode||"").trim().toUpperCase();if(p.length<6){toast("Use at least 6 characters");return}

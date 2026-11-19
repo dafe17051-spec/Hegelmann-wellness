@@ -7,146 +7,265 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Hegelmann Wellness & RPE</title>
+<title>FC Hegelmann · Wellness & RPE</title>
+<link rel="icon" type="image/png" href="assets/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Hegelmann">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
 <style>
-html{-webkit-text-size-adjust:100%}body{margin:0}[hidden]{display:none!important}img{max-width:100%}
-/* Layout: banda azul marino fija arriba con pestañas; debajo una sola columna de trabajo (móvil primero), tablas con scroll propio. Esquinas rectas, sin sombras. */
+html{-webkit-text-size-adjust:100%}body{margin:0}[hidden]{display:none!important}img{max-width:100%;display:block}
+/* FC Hegelmann identity: navy band with crest, Poppins, square corners, no shadows. One yellow highlight per view (active tab). */
 :root{
-  --navy:#01254F; --brand:#013E83; --accent:#0095D6; --hi:#FFC107;
-  --bg:#F3F5F8; --surface:#FFFFFF; --surface2:#E9EDF3; --line:#CFD6E0;
-  --fg:#0E1B2C; --fg2:#4A5A70; --fg3:#74839A;
-  --good:#18794E; --warn:#A86200; --bad:#C22F2F;
-  --good-bg:#DDF2E6; --warn-bg:#FCEBC8; --bad-bg:#F9DADA; --neu-bg:#E9EDF3;
-  --on-navy:#FFFFFF; --on-navy2:#B9C8DC;
+  --navy:#01254F; --navy-2:#00336B; --brand:#013E83; --accent:#0095D6; --hi:#FFC107;
+  --bg:#F5F7FA; --surface:#FFFFFF; --surface2:#EBEFF5; --line:#DDE3EC; --line-strong:#B4C0D0;
+  --fg:#0B1A2E; --fg2:#4A5D75; --fg3:#6B7F97;
+  --good:#16794C; --warn:#9A5B00; --bad:#C0302A;
+  --good-bg:#E0F3E8; --warn-bg:#FCEDCB; --bad-bg:#FBE0DE; --neu-bg:#EBEFF5;
+  --on-navy:#FFFFFF; --on-navy2:#B7C7DC; --press:#012F63;
+  --ease:cubic-bezier(.23,1,.32,1);
   --font:'Poppins',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#0A1320; --surface:#111D2E; --surface2:#1A2A40; --line:#2B3D57;
-  --fg:#EAF0F7; --fg2:#A9B8CB; --fg3:#7F90A6; --brand:#5CA8F0; --accent:#35B4F0;
-  --good:#5FD39A; --warn:#F2B544; --bad:#FF8A8A;
-  --good-bg:#12382A; --warn-bg:#40300D; --bad-bg:#4A1D1D; --neu-bg:#1A2A40;
+  --bg:#051129; --surface:#0A1B38; --surface2:#0F2648; --line:#16335E; --line-strong:#2A4D80;
+  --fg:#EEF3F9; --fg2:#A9BCD2; --fg3:#8499B3; --brand:#5AAEF2; --accent:#3BB8F2;
+  --good:#5ED39A; --warn:#F4B84A; --bad:#FF7A70;
+  --good-bg:#0F3A2B; --warn-bg:#3D2D0B; --bad-bg:#46191A; --neu-bg:#0F2648; --press:#0E3A75;
   color-scheme:dark } }
 :root[data-theme="dark"]{
-  --bg:#0A1320; --surface:#111D2E; --surface2:#1A2A40; --line:#2B3D57;
-  --fg:#EAF0F7; --fg2:#A9B8CB; --fg3:#7F90A6; --brand:#5CA8F0; --accent:#35B4F0;
-  --good:#5FD39A; --warn:#F2B544; --bad:#FF8A8A;
-  --good-bg:#12382A; --warn-bg:#40300D; --bad-bg:#4A1D1D; --neu-bg:#1A2A40;
+  --bg:#051129; --surface:#0A1B38; --surface2:#0F2648; --line:#16335E; --line-strong:#2A4D80;
+  --fg:#EEF3F9; --fg2:#A9BCD2; --fg3:#8499B3; --brand:#5AAEF2; --accent:#3BB8F2;
+  --good:#5ED39A; --warn:#F4B84A; --bad:#FF7A70;
+  --good-bg:#0F3A2B; --warn-bg:#3D2D0B; --bad-bg:#46191A; --neu-bg:#0F2648; --press:#0E3A75;
   color-scheme:dark }
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px;line-height:1.45}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;caret-color:var(--accent);min-height:100dvh;display:flex;flex-direction:column}
+::selection{background:var(--accent);color:#01254F}
+html{scrollbar-color:var(--line-strong) transparent}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--navy)}
 button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ic{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ic.sm{width:14px;height:14px}
+/* ---- band ---- */
 .band{background:var(--navy);color:var(--on-navy);position:sticky;top:env(safe-area-inset-top,0px);z-index:9}
-.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:10px 6px}
-.top h1{margin:0;font-size:16px;font-weight:600;letter-spacing:.01em}
-.top h1 b{color:var(--hi);font-weight:700}
-.sync{font-size:11px;color:var(--on-navy2);text-align:right}
+.wrap{max-width:1120px;margin:0 auto;width:100%;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand img{width:48px;height:48px}
+.brand .bt{display:flex;flex-direction:column;line-height:1.2;min-width:0}
+.brand b{font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.brand .bt span{font-size:12px;color:var(--on-navy2);font-weight:500}
+.tr{display:flex;align-items:center;gap:12px}
+.sync{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--on-navy2);white-space:nowrap}
+.sync i{width:7px;height:7px;background:var(--on-navy2);display:inline-block}
+.sync.ok i{background:#5ED39A} .sync.off i{background:#FF7A70}
+.ghost{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid rgba(255,255,255,.22);color:var(--on-navy);padding:6px 10px;font-size:12px;font-weight:500;transition:background-color 150ms ease,border-color 150ms ease,transform 120ms var(--ease)}
+.ghost:active{transform:scale(.97)}
 .tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
-.tabs button{background:none;border:0;border-bottom:3px solid transparent;color:var(--on-navy2);padding:8px 12px;font-weight:500;white-space:nowrap;position:relative}
-.tabs button[aria-current="true"]{color:var(--on-navy);border-bottom-color:var(--hi)}
-.badge{display:inline-block;min-width:18px;padding:0 5px;background:var(--hi);color:#01254F;font-size:11px;font-weight:700;text-align:center;margin-left:6px}
-main{padding-block:16px 40px;display:flex;flex-direction:column;gap:16px}
-h2{font-size:18px;font-weight:600;margin:0;text-wrap:balance}
-h3{font-size:12px;font-weight:600;margin:0;text-transform:uppercase;letter-spacing:.06em;color:var(--fg2)}
-p{margin:0}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{background:none;border:0;color:var(--on-navy2);padding:10px 12px 12px;font-weight:500;white-space:nowrap;position:relative;display:inline-flex;align-items:center;gap:6px;transition:color 150ms ease}
+.tabs button::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:3px;background:var(--hi);transform:scaleX(0);transition:transform 200ms var(--ease)}
+.tabs button[aria-current="true"]{color:var(--on-navy)}
+.tabs button[aria-current="true"]::after{transform:scaleX(1)}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;background:var(--accent);color:#01254F;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}
+/* ---- layout ---- */
+main{flex:1;padding-block:20px 48px;display:flex;flex-direction:column;gap:16px}
+main.enter{animation:enter 220ms var(--ease)}
+@keyframes enter{from{opacity:0;transform:translateY(6px)}}
+.foot{padding-block:20px calc(20px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);color:var(--fg3);font-size:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1,h2,h3{margin:0;text-wrap:balance}
+h2{font-size:20px;font-weight:600;letter-spacing:-.01em;line-height:1.25}
+h3{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--fg2);line-height:1.4}
+p{margin:0;text-wrap:pretty}
 .muted{color:var(--fg2)} .small{font-size:12px}
-.card{background:var(--surface);border:1px solid var(--line);padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+@media (min-width:701px){.card{padding:20px}}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .between{justify-content:space-between}
-.grid{display:grid;gap:12px}
+.grid{display:grid;gap:16px}
 .g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
-.btn{background:var(--surface);border:1px solid var(--line);padding:9px 14px;font-weight:500}
-.btn.pri{background:#013E83;border-color:#013E83;color:#fff}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.head p{margin-top:2px}
+/* ---- controls ---- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--surface);border:1px solid var(--line-strong);padding:10px 16px;font-weight:500;line-height:1.2;text-decoration:none;color:var(--fg);transition:background-color 150ms ease,border-color 150ms ease,color 150ms ease,transform 120ms var(--ease)}
+.btn:active:not(:disabled){transform:scale(.97)}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+:root[data-theme="dark"] .btn.pri{color:#01254F}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.pri{color:#01254F}}
 .btn.danger{color:var(--bad);border-color:var(--bad)}
-.btn.sm{padding:5px 10px;font-size:12px}
-.btn:disabled{opacity:.45;cursor:default}
-input[type=text],input[type=number],input[type=date],input[type=password],select,textarea{background:var(--surface);border:1px solid var(--line);padding:8px 10px;min-width:0;border-radius:0}
-textarea{width:100%;resize:vertical;min-height:60px}
-label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--fg2);font-weight:500;min-width:0}
-/* estado */
-.pill{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;font-size:12px;font-weight:600;white-space:nowrap}
+.btn.sm{padding:6px 10px;font-size:12px}
+.btn.icon{padding:8px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+@media (hover:hover) and (pointer:fine){
+  .btn:hover:not(:disabled){background:var(--surface2)}
+  .btn.pri:hover:not(:disabled){background:var(--press);border-color:var(--press)}
+  .btn.danger:hover{background:var(--bad-bg)}
+  .ghost:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.4)}
+  .tabs button:hover{color:var(--on-navy)}
+}
+input[type=text],input[type=number],input[type=date],input[type=password],select,textarea{background:var(--surface);border:1px solid var(--line-strong);padding:9px 11px;min-width:0;border-radius:0;transition:border-color 150ms ease,box-shadow 150ms ease;min-height:40px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+input::placeholder,textarea::placeholder{color:var(--fg3)}
+textarea{width:100%;resize:vertical;min-height:72px}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--fg2);font-weight:500;min-width:0}
+/* ---- status ---- */
+.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;font-size:12px;font-weight:600;white-space:nowrap;line-height:1.4}
+.pill::before{content:"";width:7px;height:7px;background:currentColor;flex:none}
+.pill.noi::before{display:none}
 .pill.g{background:var(--good-bg);color:var(--good)} .pill.a{background:var(--warn-bg);color:var(--warn)}
 .pill.r{background:var(--bad-bg);color:var(--bad)} .pill.n{background:var(--neu-bg);color:var(--fg2)}
-/* tiles */
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-.tile{background:var(--surface);border:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:2px;min-width:0}
-.tile .v{font-size:26px;font-weight:600;line-height:1.15;font-variant-numeric:tabular-nums}
-.tile .v small{font-size:14px;font-weight:500;color:var(--fg2)}
+.note{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;background:var(--surface2);font-size:13px;color:var(--fg)}
+.note .ic{color:var(--brand);margin-top:1px}
+.note.err{background:var(--bad-bg)} .note.err .ic{color:var(--bad)}
+/* ---- tiles ---- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));padding:1px 0 0 1px}
+.tile{background:var(--surface);border:1px solid var(--line);margin:-1px 0 0 -1px;padding:16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.tile .v{font-size:30px;font-weight:600;line-height:1.1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tile .v small{font-size:14px;font-weight:500;color:var(--fg2);letter-spacing:0}
 .tile .k{font-size:12px;color:var(--fg2);font-weight:500}
 .tile .d{font-size:12px;color:var(--fg3)}
-/* escala 1-10 */
-.q{display:flex;flex-direction:column;gap:6px;padding-block:10px;border-top:1px solid var(--line)}
+/* ---- scale 1-10 ---- */
+.q{display:flex;flex-direction:column;gap:8px;padding-block:16px;border-top:1px solid var(--line)}
 .q:first-of-type{border-top:0;padding-top:0}
-.q .t{font-weight:600;font-size:15px}
+.q .t{font-weight:600;font-size:16px;letter-spacing:-.005em}
 .scale{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
-.scale button{border:1px solid var(--line);background:var(--surface);padding:10px 0;font-weight:600;font-variant-numeric:tabular-nums;min-width:0}
+.scale button{border:1px solid var(--line-strong);background:var(--surface);height:46px;font-weight:600;font-variant-numeric:tabular-nums;min-width:0;transition:background-color 150ms ease,border-color 150ms ease,color 150ms ease,transform 120ms var(--ease)}
+.scale button:active{transform:scale(.94)}
+@media (hover:hover) and (pointer:fine){.scale button:hover:not(.on){border-color:var(--fg2)}}
 .scale button.on.g{background:var(--good);border-color:var(--good);color:var(--surface)}
 .scale button.on.n{background:var(--fg2);border-color:var(--fg2);color:var(--surface)}
 .scale button.on.a{background:var(--warn);border-color:var(--warn);color:var(--surface)}
 .scale button.on.r{background:var(--bad);border-color:var(--bad);color:var(--surface)}
-.scale button.on.b{background:#013E83;border-color:#013E83;color:#fff}
-.ends{display:flex;justify-content:space-between;font-size:11px;color:var(--fg2);gap:8px}
+.scale button.on.b{background:var(--brand);border-color:var(--brand);color:var(--surface)}
+.ramp{height:3px;background:linear-gradient(90deg,var(--good) 0 30%,var(--fg3) 30% 50%,var(--warn) 50% 70%,var(--bad) 70%)}
+.ramp.b{background:linear-gradient(90deg,var(--surface2),var(--brand))}
+.ends{display:flex;justify-content:space-between;font-size:12px;color:var(--fg2);gap:8px}
 .ends span:last-child{text-align:right}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{border:1px solid var(--line);background:var(--surface);padding:5px 10px;font-size:12px}
-.chip.on{background:#013E83;border-color:#013E83;color:#fff}
-/* selector de jugador */
-.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
-.plist button{display:flex;gap:10px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);padding:10px;min-width:0}
-.num{font-weight:700;color:var(--brand);font-variant-numeric:tabular-nums;min-width:22px}
-.plist span.nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.task{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);padding:14px;text-align:left;width:100%}
+.chip{border:1px solid var(--line-strong);background:var(--surface);padding:7px 12px;font-size:13px;transition:background-color 150ms ease,color 150ms ease,transform 120ms var(--ease)}
+.chip:active{transform:scale(.97)}
+.chip.on{background:var(--brand);border-color:var(--brand);color:var(--surface)}
+/* ---- player home ---- */
+.hero{background:var(--navy);color:var(--on-navy);display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;padding:20px;position:relative;overflow:hidden}
+.dorsal{font-size:56px;font-weight:700;line-height:.9;letter-spacing:-.04em;font-variant-numeric:tabular-nums;color:var(--on-navy);min-width:64px;text-align:center}
+.dorsal.none{font-size:28px;color:var(--on-navy2)}
+.hero h2{font-size:22px;overflow-wrap:anywhere}
+.hero.nonum{grid-template-columns:1fr auto}
+.hero .ghost{align-self:start}
+.hero p{color:var(--on-navy2);font-size:13px;margin-top:2px}
+.prog{display:flex;gap:4px;margin-top:10px}
+.prog i{height:4px;flex:1;background:rgba(255,255,255,.18)}
+.prog i.on{background:var(--hi)}
+.list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line)}
+.task{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:14px;background:none;border:0;border-top:1px solid var(--line);padding:16px;text-align:left;width:100%;transition:background-color 150ms ease}
+.task:first-child{border-top:0}
+.task:active{background:var(--surface2)}
+@media (hover:hover) and (pointer:fine){.task:hover{background:var(--surface2)}}
+.task>.ic{color:var(--brand);width:22px;height:22px}
 .task b{font-size:15px;font-weight:600;display:block}
-/* tabla */
-.tw{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
-th,td{padding:7px 8px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap}
-th{font-size:11px;font-weight:600;color:var(--fg2);text-transform:uppercase;letter-spacing:.04em;background:var(--surface2)}
-th:first-child,td:first-child{text-align:left}
-tbody tr.click{cursor:pointer} tbody tr.click:hover{background:var(--surface2)}
+.task .chev{color:var(--fg3)}
+.done{display:flex;gap:10px;align-items:center;background:var(--good-bg);color:var(--good);padding:12px 14px;font-weight:600}
+/* ---- table ---- */
+.tw{overflow-x:auto;border:1px solid var(--line);background:var(--surface);-webkit-overflow-scrolling:touch}
+table{border-collapse:separate;border-spacing:0;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:9px 10px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:11px;font-weight:600;color:var(--fg2);text-transform:uppercase;letter-spacing:.06em;background:var(--surface2)}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;z-index:1;background:var(--surface);border-right:1px solid var(--line)}
+th:first-child{background:var(--surface2)}
+tbody tr.click{cursor:pointer}
+tbody tr{transition:background-color 120ms ease}
+@media (hover:hover) and (pointer:fine){tbody tr.click:hover,tbody tr.click:hover td:first-child{background:var(--surface2)}}
 tr:last-child td{border-bottom:0}
-td.c{font-weight:600;min-width:38px}
+td.c{font-weight:600;min-width:40px}
 td.c.g{background:var(--good-bg);color:var(--good)} td.c.a{background:var(--warn-bg);color:var(--warn)}
 td.c.r{background:var(--bad-bg);color:var(--bad)} td.c.n{color:var(--fg)}
 td.c.x{color:var(--fg3);font-weight:400}
-/* atención */
+.num{font-weight:700;color:var(--brand);font-variant-numeric:tabular-nums;display:inline-block;min-width:24px}
+/* ---- attention ---- */
+#detalle{scroll-margin-top:140px}
 .att{display:flex;flex-direction:column}
-.att button{display:flex;gap:10px;align-items:baseline;justify-content:space-between;background:none;border:0;border-top:1px solid var(--line);padding:9px 0;text-align:left;width:100%;flex-wrap:wrap}
-.att button:first-child{border-top:0}
-/* chat */
-.chat{display:grid;grid-template-columns:240px 1fr;gap:12px;align-items:start}
+.att button{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:none;border:0;border-top:1px solid var(--line);padding:12px 0;text-align:left;width:100%}
+.att button:first-child{border-top:0;padding-top:0}
+.att .why{display:block;font-size:12px;color:var(--fg2);margin-top:1px}
+.att .chev{color:var(--fg3)}
+/* ---- chat ---- */
+.chat{display:grid;grid-template-columns:260px 1fr;gap:16px;align-items:start}
 .clist{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line)}
-.clist button{display:flex;justify-content:space-between;gap:8px;align-items:center;background:none;border:0;border-bottom:1px solid var(--line);padding:10px 12px;text-align:left}
-.clist button:last-child{border-bottom:0}
-.clist button.on{background:var(--surface2);font-weight:600}
-.thread{display:flex;flex-direction:column;gap:8px;max-height:52vh;min-height:160px;overflow-y:auto;padding:4px 2px}
-.msg{max-width:82%;padding:8px 10px;background:var(--surface2);align-self:flex-start;overflow-wrap:anywhere;white-space:pre-wrap}
-.msg.me{align-self:flex-end;background:#013E83;color:#fff}
-.msg time{display:block;font-size:10px;opacity:.7;margin-top:2px}
+.clist button{display:flex;justify-content:space-between;gap:8px;align-items:center;background:none;border:0;border-top:1px solid var(--line);padding:12px 14px;text-align:left;transition:background-color 120ms ease}
+.clist button:first-child{border-top:0}
+.clist button>span{display:flex;align-items:center;gap:8px;min-width:0}
+.clist button.on{background:var(--surface2);font-weight:600;box-shadow:inset 0 -2px 0 var(--brand)}
+@media (hover:hover) and (pointer:fine){.clist button:hover{background:var(--surface2)}}
+.thread{display:flex;flex-direction:column;gap:8px;max-height:56vh;min-height:180px;overflow-y:auto;padding:4px 2px;overscroll-behavior:contain}
+.msg{max-width:82%;padding:9px 12px;background:var(--surface2);align-self:flex-start;overflow-wrap:anywhere;white-space:pre-wrap}
+.msg.me{align-self:flex-end;background:var(--brand);color:var(--surface)}
+.msg time{display:block;font-size:11px;opacity:.75;margin-top:3px;font-variant-numeric:tabular-nums}
+.msg .to{display:flex;align-items:center;gap:5px;font-weight:600;font-size:12px;margin-bottom:2px}
 .composer{display:flex;gap:8px} .composer input{flex:1}
 @media (max-width:700px){ .chat{grid-template-columns:1fr} .chat.open .clist{display:none} .chat:not(.open) .tcard{display:none} }
-@media (min-width:701px){ .backbtn{display:none} }
-svg text{font-family:var(--font);fill:var(--fg2);font-size:11px}
-.note{border-left:3px solid var(--hi);padding:8px 12px;background:var(--surface);font-size:13px}
-#tip{position:fixed;z-index:20;pointer-events:none;background:var(--fg);color:var(--bg);padding:5px 8px;font-size:12px;max-width:240px}
-#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:9px 16px;z-index:30;font-weight:500}
-.ok-big{font-size:15px;font-weight:600;color:var(--good)}
+@media (min-width:701px){ .backbtn{display:none} .clist{max-height:calc(100dvh - 220px);overflow-y:auto;position:sticky;top:132px} }
+/* ---- charts ---- */
+.card>svg,.grid svg{max-width:100%;height:auto}
+svg text{font-family:var(--font);fill:var(--fg2);font-size:11px;font-variant-numeric:tabular-nums}
+.big{font-size:32px;font-weight:600;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+/* ---- login ---- */
+body.login{background:var(--navy)}
+body.login .band,body.login .foot{display:none}
+body.login main{justify-content:center;align-items:center;padding-block:48px}
+.gate{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;gap:28px;text-align:center;color:var(--on-navy)}
+.gate img{width:132px;height:132px}
+.gate h1{font-size:22px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.gate .sub{color:var(--on-navy2);margin-top:4px}
+.gate .card{width:100%;text-align:left;color:var(--fg)}
+.gate .card h2{font-size:17px}
+.codein{font-size:20px!important;letter-spacing:.24em;text-transform:uppercase;font-weight:600;text-align:center;min-height:52px!important;width:100%}
+.codein::placeholder{letter-spacing:.06em;font-weight:500;font-size:15px}
+.gate .btn.pri{width:100%;min-height:48px;font-size:15px}
+/* ---- overlays ---- */
+#tip{position:fixed;z-index:20;pointer-events:none;background:var(--fg);color:var(--bg);padding:6px 9px;font-size:12px;max-width:240px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--navy);color:#fff;padding:11px 16px;z-index:30;font-weight:500;display:flex;align-items:center;gap:8px;max-width:calc(100vw - 32px);border:1px solid rgba(255,255,255,.12);opacity:0;visibility:hidden;transform:translate(-50%,8px);transition:opacity 200ms var(--ease),transform 200ms var(--ease),visibility 0s linear 200ms}
+#toast.show{opacity:1;visibility:visible;transform:translate(-50%,0);transition:opacity 200ms var(--ease),transform 200ms var(--ease),visibility 0s}
+#toast .ic{color:#5ED39A}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:0ms!important}
+  main.enter{animation:fade 160ms ease}
+  #toast{transition:opacity 160ms ease!important;transform:translate(-50%,0)!important}
+}
+@keyframes fade{from{opacity:0}}
+@media (max-width:360px){ .brand b{font-size:13px;letter-spacing:.04em} .brand img{width:40px;height:40px} #out .ghost span{display:none} }
+@media (max-width:520px){
+  .brand .bt span{display:none}
+  .sync span{display:none}
+  .hero{padding:18px 16px;gap:14px}
+  .hero .ghost span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .hero .ghost{padding:8px}
+  .foot{flex-direction:column;gap:2px}
+  .dorsal{font-size:48px;min-width:52px}
+  .scale{gap:3px}
+  .tabs button{padding:10px 9px 12px}
+  .tabs button::after{left:9px;right:9px}
+  .scale button{height:44px;font-size:13px}
+}
 </style>
 </head>
-<body>
-<div class="band">
+<body class="login">
+<header class="band">
   <div class="wrap">
-    <div class="top"><h1>FC Hegelmann <b>·</b> Wellness & RPE</h1><div class="sync" id="sync">Connecting…</div></div>
-    <nav class="tabs" id="tabs"></nav>
+    <div class="top">
+      <div class="brand"><img src="assets/crest-160.png" width="48" height="48" alt="FC Hegelmann crest"><span class="bt"><b>FC Hegelmann</b><span>Wellness &amp; RPE</span></span></div>
+      <div class="tr"><div class="sync" id="sync"></div><span id="out"></span></div>
+    </div>
+    <nav class="tabs" id="tabs" aria-label="Sections"></nav>
   </div>
-</div>
+</header>
 <main class="wrap" id="app"></main>
+<footer class="wrap foot"><span>FC Hegelmann · Performance department</span><span>Wellness, RPE &amp; strength</span></footer>
 <div id="tip" hidden></div>
-<div id="toast" hidden></div>
+<div id="toast" role="status" aria-live="polite"></div>
 <script>
 (function(){
 "use strict";
@@ -189,7 +308,14 @@ function mean(a){return a.length?a.reduce(function(x,y){return x+y},0)/a.length:
 function sd(a){if(a.length<2)return 0;var m=mean(a);return Math.sqrt(a.reduce(function(x,y){return x+(y-m)*(y-m)},0)/(a.length-1))}
 function plist(){return Object.keys(S.players).map(function(id){var p=S.players[id];p.id=id;return p}).sort(function(a,b){return (+a.num||999)-(+b.num||999)||String(a.name).localeCompare(b.name)})}
 function activos(){return plist().filter(function(p){return p.status!=="baja"})}
-function toast(t){var e=document.getElementById("toast");e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){e.hidden=true},2600)}
+var IC={check:"M5 12.5l4.5 4.5L19 7.5",chev:"M9 6l6 6-6 6",back:"M15 6l-6 6 6 6",pulse:"M3 12h4l2.5-6 4 12 2.5-6H21",
+ gauge:"M4.5 17a8 8 0 1 1 15 0M12 16l3.5-5",lift:"M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11",chat:"M4 5h16v11H9.5L4 20z",
+ mega:"M3.5 10v4h3l7 4.5v-13L6.5 10zM17 9.5a3.5 3.5 0 0 1 0 5",out:"M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10",clock:"M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17zM12 7.5V12l3 2",
+ info:"M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17zM12 11v5.5M12 7.6v.4",alert:"M12 4l9 16H3zM12 10v4.5M12 17.2v.3",send:"M4 12l16-8-5.5 16-3-6.5z",
+ copy:"M9 9h11v11H9zM5 15V4h11",down:"M12 4v11M7.5 10.5L12 15l4.5-4.5M5 20h14",chevl:"M15 6l-6 6 6 6",chevr:"M9 6l6 6-6 6",x:"M6 6l12 12M18 6L6 18"};
+function ic(n,c){return '<svg class="ic'+(c?" "+c:"")+'" viewBox="0 0 24 24" aria-hidden="true"><path d="'+IC[n]+'"/></svg>'}
+function note(html,err){return '<div class="note'+(err?" err":"")+'">'+ic(err?"alert":"info")+'<span>'+html+'</span></div>'}
+function toast(t){var e=document.getElementById("toast");e.innerHTML=ic("check")+'<span>'+esc(t)+'</span>';e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove("show")},2600)}
 
 /* ---------- datos derivados ---------- */
 function wOf(pid,date){var d=S.wellness[pid];var e=d&&d.entries&&d.entries[date];return e||null}
@@ -250,42 +376,48 @@ function savePlayer(id,patch){var p=S.players[id],k;for(k in patch)p[k]=patch[k]
 var TABS=[["panel","Dashboard"],["plantilla","Squad"],["tests","Tests"],["chat","Chat"],["datos","Data"]];
 function renderTabs(){var el=document.getElementById("tabs");
   if(S.role==="staff"){var u=unreadStaffAll();el.hidden=false;
-    el.innerHTML=TABS.map(function(t){return '<button data-act="tab" data-v="'+t[0]+'" aria-current="'+(S.tab===t[0])+'">'+t[1]+(t[0]==="chat"&&u?'<span class="badge">'+u+'</span>':'')+'</button>'}).join("")+'<button data-act="logout" style="margin-left:auto">Log out</button>'}
+    el.innerHTML=TABS.map(function(t){return '<button data-act="tab" data-v="'+t[0]+'" aria-current="'+(S.tab===t[0])+'">'+t[1]+(t[0]==="chat"&&u?'<span class="badge">'+u+'</span>':'')+'</button>'}).join("")}
   else{el.hidden=true;el.innerHTML=""}
-  document.getElementById("sync").textContent=!S.role?"":dbState==="ok"?"Updated "+pad(lastSync.getHours())+":"+pad(lastSync.getMinutes()):dbState==="offline"?"Offline":"Connecting…"}
+  document.getElementById("out").innerHTML=S.role==="staff"?'<button class="ghost" data-act="logout" aria-label="Log out">'+ic("out","sm")+'<span>Log out</span></button>':"";
+  document.body.classList.toggle("login",!S.role);
+  var sy=document.getElementById("sync");sy.className="sync"+(dbState==="ok"?" ok":dbState==="offline"?" off":"");
+  sy.innerHTML=!S.role?"":'<i></i><span>'+(dbState==="ok"?"Updated "+pad(lastSync.getHours())+":"+pad(lastSync.getMinutes()):dbState==="offline"?"Offline":"Connecting…")+'</span>'}
 
 /* ---------- vista jugador ---------- */
 function vJugador(){
   if(!S.me||!S.players[S.me])return '<div class="card"><p class="muted">Loading…</p></div>';
-  var p=S.players[S.me],head='<div class="row between"><h2>'+esc(p.name)+'</h2>'+(S.confirm==="out"?'<button class="btn sm danger" data-act="logout">Confirm log out</button>':'<button class="btn sm" data-act="confirm" data-v="out">Log out</button>')+'</div>';
+  var p=S.players[S.me],lo=S.confirm==="out"?'<button class="ghost" data-act="logout">Confirm log out</button>':'<button class="ghost" data-act="confirm" data-v="out" aria-label="Log out">'+ic("out","sm")+'<span>Log out</span></button>';
   if(S.pv==="home"){
-    var w=wOf(S.me,today()),rs=rOf(S.me,today()),u=unreadPlayer(S.me);
-    return head+'<p class="muted">Today, '+fd(today())+'</p>'+
-     (S.sent?'<p class="ok-big">'+esc(S.sent)+'</p>':'')+
-     '<button class="task" data-act="pv" data-v="wellness"><span><b>Wellness</b><span class="muted small">Before training · 1 minute</span></span>'+(w?'<span class="pill g">✓ Sent</span>':'<span class="pill a">Pending</span>')+'</button>'+
-     '<button class="task" data-act="pv" data-v="rpe"><span><b>Session RPE</b><span class="muted small">10 to 30 minutes after finishing</span></span>'+(rs.length?'<span class="pill g">✓ '+rs.length+' sent</span>':'<span class="pill n">Not sent</span>')+'</button>'+
-     '<button class="task" data-act="pv" data-v="report"><span><b>Test report</b><span class="muted small">Your 1RM and training weights by %</span></span>'+(EXS.some(function(e){return rmLatest(S.me)[e[0]]})?'<span class="pill g">Ready</span>':'<span class="pill n">No tests yet</span>')+'</button>'+
-     '<button class="task" data-act="pv" data-v="chat"><span><b>Messages</b><span class="muted small">Chat with the fitness coach</span></span>'+(u?'<span class="badge">'+u+' new</span>':'<span class="pill n">Up to date</span>')+'</button>';
+    var w=wOf(S.me,today()),rs=rOf(S.me,today()),u=unreadPlayer(S.me),nd=(w?1:0)+(rs.length?1:0);
+    function task(v,icon,title,sub,st){return '<button class="task" data-act="pv" data-v="'+v+'">'+ic(icon)+'<span><b>'+title+'</b><span class="muted small">'+sub+'</span></span>'+st+ic("chev","chev")+'</button>'}
+    return '<section class="hero'+(p.num?"":" nonum")+'">'+(p.num?'<div class="dorsal" aria-label="Shirt number">'+esc(p.num)+'</div>':'')+'<div><h2>'+esc(p.name)+'</h2><p>'+fd(today())+' · '+(nd===2?"Today’s check-in is complete":nd+" of 2 sent today")+'</p><div class="prog" aria-hidden="true"><i class="'+(w?"on":"")+'"></i><i class="'+(rs.length?"on":"")+'"></i></div></div>'+lo+'</section>'+
+     (S.sent?'<div class="done">'+ic("check")+'<span>'+esc(S.sent)+'</span></div>':'')+
+     '<div class="list">'+
+     task("wellness","pulse","Wellness","Before training · 1 minute",w?'<span class="pill g">Sent</span>':'<span class="pill a">Pending</span>')+
+     task("rpe","gauge","Session RPE","10 to 30 minutes after finishing",rs.length?'<span class="pill g">'+rs.length+' sent</span>':'<span class="pill n">Not sent</span>')+
+     task("report","lift","Test report","Your 1RM and training weights",EXS.some(function(e){return rmLatest(S.me)[e[0]]})?'<span class="pill g">Ready</span>':'<span class="pill n">No tests yet</span>')+
+     task("chat","chat","Messages","Chat with the fitness coach",u?'<span class="badge">'+u+' new</span>':'<span class="pill n noi">Up to date</span>')+
+     '</div>';
   }
-  var back='<div><button class="btn sm" data-act="pv" data-v="home">← Back</button></div>';
+  var back='<div><button class="btn sm" data-act="pv" data-v="home">'+ic("back","sm")+'Back</button></div>';
   if(S.pv==="wellness"){var w2=D.w,ex=wOf(S.me,w2.date);
     var ok=ITEMS.every(function(it){return w2[it.k]});
-    return head+back+'<div class="card"><div class="row between"><h2>Wellness</h2><label class="f">Date<input type="date" id="w-date" data-bind="w.date" value="'+w2.date+'" max="'+today()+'"></label></div>'+
-     '<p class="note">In every question <b>1 is best and 10 is worst</b>. Answer how you feel right now, without overthinking.</p>'+
-     ITEMS.map(function(it){return '<div class="q"><span class="t">'+it.t+'</span><span class="muted">'+it.q+'</span>'+scale("w."+it.k,w2[it.k],true)+'<div class="ends"><span>'+it.lo+'</span><span>'+it.hi+'</span></div></div>'}).join("")+
+    return back+'<div class="card"><div class="head"><h2>Wellness</h2><label class="f">Date<input type="date" id="w-date" data-bind="w.date" value="'+w2.date+'" max="'+today()+'"></label></div>'+
+     note('In every question <b>1 is best and 10 is worst</b>. Answer how you feel right now, without overthinking.')+
+     ITEMS.map(function(it){return '<div class="q"><span class="t">'+it.t+'</span><span class="muted">'+it.q+'</span>'+scale("w."+it.k,w2[it.k],true)+'<div class="ramp" aria-hidden="true"></div><div class="ends"><span>'+it.lo+'</span><span>'+it.hi+'</span></div></div>'}).join("")+
      (w2.d>=4?'<div class="q"><span class="t">Where do you feel sore?</span><div class="chips">'+ZONAS.map(function(z){return '<button class="chip'+(w2.zona.indexOf(z)>=0?" on":"")+'" data-act="zona" data-v="'+z+'">'+z+'</button>'}).join("")+'</div></div>':'')+
      '<div class="q"><div class="row"><label class="f">Hours slept (optional)<input type="number" id="w-h" data-bind="w.h" value="'+esc(w2.h)+'" min="0" max="14" step="0.5" inputmode="decimal" style="width:120px"></label></div>'+
      '<label class="f">Comment for the staff (optional)<textarea id="w-c" data-bind="w.c" maxlength="300">'+esc(w2.c)+'</textarea></label></div>'+
      '<div class="row"><button class="btn pri" data-act="saveW" '+(ok?'':'disabled')+'>'+(ex?'Update wellness':'Send wellness')+'</button>'+(ok?'':'<span class="muted small">Answer all 5 questions to send.</span>')+'</div></div>';
   }
-  if(S.pv==="report")return head+back+'<h2>Test report</h2>'+report(S.me);
+  if(S.pv==="report")return back+'<div class="head"><h2>Test report</h2><span class="muted small">'+esc(p.name)+'</span></div>'+report(S.me);
   if(S.pv==="rpe"){var r=D.r,okr=r.rpe&&+r.min>0;
-    return head+back+'<div class="card"><h2>Session RPE</h2>'+
+    return back+'<div class="card"><h2>Session RPE</h2>'+
      '<div class="row"><label class="f">Session date<input type="date" id="r-date" data-bind="r.date" value="'+r.date+'" max="'+today()+'"></label>'+
      '<label class="f">Session type<select id="r-tipo" data-bind="r.tipo">'+TIPOS.map(function(t){return '<option'+(t===r.tipo?' selected':'')+'>'+t+'</option>'}).join("")+'</select></label>'+
      '<label class="f">Duration (min)<input type="number" id="r-min" data-bind="r.min" value="'+esc(r.min)+'" min="1" max="300" inputmode="numeric" style="width:110px"></label></div>'+
      '<div class="q"><span class="t">How hard was the session overall?</span><span class="muted">1 is very, very easy and 10 is the hardest effort you can give.</span>'+scale("r.rpe",r.rpe,false)+
-     '<div class="ends"><span>1 · Very, very easy</span><span>10 · Maximal</span></div>'+(r.rpe?'<p><b>'+r.rpe+' · '+RPE_TXT[r.rpe]+'</b></p>':'')+'</div>'+
+     '<div class="ramp b" aria-hidden="true"></div><div class="ends"><span>1 · Very, very easy</span><span>10 · Maximal</span></div>'+(r.rpe?'<p class="row" style="gap:8px;align-items:baseline"><span class="big">'+r.rpe+'</span><b>'+RPE_TXT[r.rpe]+'</b>'+(+r.min>0?'<span class="muted small">· '+Math.round(r.rpe*r.min)+' AU</span>':'')+'</p>':'')+'</div>'+
      '<div class="row"><button class="btn pri" data-act="saveR" '+(okr?'':'disabled')+'>Send RPE</button>'+(okr?'':'<span class="muted small">Enter the duration and the RPE.</span>')+'</div></div>'+
      rpeList(S.me);
   }
@@ -293,18 +425,18 @@ function vJugador(){
   var t=S.chats.team,team=(t&&t.msgs||[]).map(function(m){return {t:m.t,from:"staff",text:m.text,team:true}});
   var c=S.chats[S.me],own=(c&&c.msgs||[]);
   var all=team.concat(own).sort(function(a,b){return a.t-b.t});
-  return head+back+'<div class="card"><h2>Messages</h2>'+thread(all,"player")+composer("Write to the fitness coach…")+'</div>';
+  return back+'<div class="card"><h2>Messages</h2>'+thread(all,"player")+composer("Write to the fitness coach…")+'</div>';
 }
 function scale(bind,val,bad){var h='<div class="scale">';for(var i=1;i<=10;i++)h+='<button data-act="pick" data-b="'+bind+'" data-v="'+i+'" class="'+(val===i?"on "+(bad?lvl(i):"b"):"")+'" aria-pressed="'+(val===i)+'">'+i+'</button>';return h+'</div>'}
 function rpeList(pid){var d=S.rpe[pid],a=[];if(d&&d.entries)for(var k in d.entries)if(d.entries[k])a.push(d.entries[k]);
   a.sort(function(x,y){return x.date<y.date?1:-1});a=a.slice(0,6);if(!a.length)return "";
   return '<div class="card"><h3>Your latest RPE</h3><div class="tw"><table><thead><tr><th>Date</th><th>Session</th><th>Min</th><th>RPE</th></tr></thead><tbody>'+a.map(function(e){return '<tr><td>'+fd(e.date)+'</td><td>'+esc(e.tipo)+'</td><td>'+e.min+'</td><td>'+e.rpe+'</td></tr>'}).join("")+'</tbody></table></div></div>'}
 function thread(msgs,me){if(!msgs.length)return '<div class="thread" id="thread"><p class="muted">No messages yet.</p></div>';
-  return '<div class="thread" id="thread">'+msgs.map(function(m){var d=new Date(m.t);return '<div class="msg'+(m.from===me?" me":"")+'">'+(m.team?'<b>To the whole team: </b>':'')+esc(m.text)+'<time>'+fds(iso(d))+" · "+pad(d.getHours())+":"+pad(d.getMinutes())+'</time></div>'}).join("")+'</div>'}
-function composer(ph){return '<div class="composer"><input type="text" id="msg" data-bind="msg" value="'+esc(D.msg)+'" placeholder="'+ph+'" maxlength="500" autocomplete="off"><button class="btn pri" data-act="send">Send</button></div>'}
+  return '<div class="thread" id="thread">'+msgs.map(function(m){var d=new Date(m.t);return '<div class="msg'+(m.from===me?" me":"")+'">'+(m.team?'<span class="to">'+ic("mega","sm")+'To the whole team</span>':'')+esc(m.text)+'<time>'+fds(iso(d))+" · "+pad(d.getHours())+":"+pad(d.getMinutes())+'</time></div>'}).join("")+'</div>'}
+function composer(ph){return '<div class="composer"><input type="text" id="msg" data-bind="msg" value="'+esc(D.msg)+'" placeholder="'+ph+'" maxlength="500" autocomplete="off"><button class="btn pri" data-act="send">'+ic("send","sm")+'Send</button></div>'}
 
 /* ---------- panel staff ---------- */
-function cw(){var w=document.getElementById("app").clientWidth;return Math.max(240,Math.floor((w>=760?(w-12)/2:w)-32))}
+function cw(){var app=document.getElementById("app"),cs=getComputedStyle(app),w=app.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),pad=window.innerWidth>=701?42:34;return Math.max(240,Math.floor((w>=616?(w-16)/2:w)-pad))}
 function vPanel(){
   var ps=activos(),d=S.date,rows=ps.map(function(p){return {p:p,st:estado(p.id,d),ld:loadDay(p.id,d),l7:load7(p.id,d)}});
   if(!ps.length)return '<div class="card"><h2>Team dashboard</h2><p class="muted">Here you will see who has answered, today’s alerts and the weekly load. Start by adding players in Squad.</p></div>';
@@ -313,7 +445,7 @@ function vPanel(){
   var pm=mean(prev),red=resp.filter(function(r){return r.st.st==="r"}),amb=resp.filter(function(r){return r.st.st==="a"});
   var lds=rows.filter(function(r){return r.ld!=null}),lm=mean(lds.map(function(r){return r.ld}));
   var disp=plist().filter(function(p){return p.status==="ok"}).length,tot=plist().length;
-  var h='<div class="row between"><h2>Team dashboard</h2><div class="row"><button class="btn sm" data-act="day" data-v="-1" aria-label="Previous day">←</button><input type="date" id="p-date" data-bind="date" value="'+d+'"><button class="btn sm" data-act="day" data-v="1" aria-label="Next day">→</button>'+(d!==today()?'<button class="btn sm" data-act="day" data-v="0">Today</button>':'')+'</div></div>';
+  var h='<div class="head"><div><h2>Team dashboard</h2><p class="muted">'+fd(d)+(d===today()?" · today":"")+'</p></div><div class="row" style="gap:6px"><button class="btn icon" data-act="day" data-v="-1" aria-label="Previous day">'+ic("chevl")+'</button><input type="date" id="p-date" data-bind="date" value="'+d+'" aria-label="Day"><button class="btn icon" data-act="day" data-v="1" aria-label="Next day">'+ic("chevr")+'</button>'+(d!==today()?'<button class="btn sm" data-act="day" data-v="0">Today</button>':'')+'</div></div>';
   h+='<div class="tiles">'+
    tile("Wellness answered",resp.length+'<small> / '+ps.length+'</small>',resp.length<ps.length?(ps.length-resp.length)+" not answered":"Everyone has answered")+
    tile("Average wellness index",tm==null?"–":r1(tm)+'<small> / 50</small>',tm==null?"No answers this day":pm==null?"Lower is better":(tm-pm>=0?"+":"")+r1(tm-pm)+" vs previous 7 days · lower is better")+
@@ -322,13 +454,13 @@ function vPanel(){
    tile("Available",disp+'<small> / '+tot+'</small>',(tot-disp)+" limited, injured or out")+'</div>';
   var at=red.concat(amb);
   h+=vReminder(rows,d);
-  h+='<div class="card"><h3>Who to check today</h3>'+(at.length?'<div class="att">'+at.map(function(r){return '<button data-act="sp" data-v="'+r.p.id+'"><span><span class="pill '+r.st.st+'">'+(r.st.st==="r"?"● Red":"▲ Amber")+'</span> <b>'+esc(r.p.name)+'</b></span><span class="muted small">'+esc(r.st.why.join(" · "))+(r.st.e.c?' · “'+esc(r.st.e.c)+'”':'')+'</span></button>'}).join("")+'</div>':'<p class="muted">'+(resp.length?"Nobody in amber or red with this day's answers.":"No wellness answers for this day yet.")+'</p>')+'</div>';
+  h+='<div class="card"><h3>Who to check today</h3>'+(at.length?'<div class="att">'+at.map(function(r){return '<button data-act="sp" data-v="'+r.p.id+'"><span class="pill '+r.st.st+'">'+(r.st.st==="r"?"Red":"Amber")+'</span><span><b>'+esc(r.p.name)+'</b><span class="why">'+esc(r.st.why.join(" · "))+(r.st.e.c?' · “'+esc(r.st.e.c)+'”':'')+'</span></span>'+ic("chev","chev")+'</button>'}).join("")+'</div>':'<p class="muted">'+(resp.length?"Nobody in amber or red with this day's answers.":"No wellness answers for this day yet.")+'</p>')+'</div>';
   if(S.sp&&S.players[S.sp])h+=vDetalle(S.sp);
   h+='<div class="card"><div class="row between"><h3>Squad · '+fd(d)+'</h3><span class="muted small">Tap a row to see the player. Scale 1-10: higher is worse.</span></div><div class="tw"><table><thead><tr><th>Player</th><th>Status</th>'+ITEMS.map(function(it){return '<th>'+it.sh+'</th>'}).join("")+'<th>Total</th><th>Vs. own avg</th><th>Flag</th><th>Day load</th><th>7-day load</th></tr></thead><tbody>'+
    rows.map(function(r){var e=r.st&&r.st.e,es=EST[r.p.status]||EST.ok;
     return '<tr class="click" data-act="sp" data-v="'+r.p.id+'"><td><span class="num">'+esc(r.p.num||"–")+'</span> '+esc(r.p.name)+' <span class="muted small">'+esc(r.p.pos||"")+'</span></td><td><span class="pill '+es[1]+'">'+es[0]+'</span></td>'+
      ITEMS.map(function(it){return e?'<td class="c '+lvl(e[it.k])+'" data-tip="'+it.t+': '+e[it.k]+' of 10">'+e[it.k]+'</td>':'<td class="c x">–</td>'}).join("")+
-     (r.st?'<td class="c n">'+r.st.tot+'</td><td>'+(r.st.b.n>=7?(r.st.tot-r.st.b.m>=0?"+":"")+r1(r.st.tot-r.st.b.m):'<span class="muted small" data-tip="7 previous answers are needed to compare with own average">not enough data</span>')+'</td><td><span class="pill '+r.st.st+'">'+({g:"✓ Green",a:"▲ Amber",r:"● Red"}[r.st.st])+'</span></td>':'<td class="c x">–</td><td class="c x">–</td><td><span class="pill n">No answer</span></td>')+
+     (r.st?'<td class="c n">'+r.st.tot+'</td><td>'+(r.st.b.n>=7?(r.st.tot-r.st.b.m>=0?"+":"")+r1(r.st.tot-r.st.b.m):'<span class="muted small" data-tip="7 previous answers are needed to compare with own average">not enough data</span>')+'</td><td><span class="pill '+r.st.st+'">'+({g:"Green",a:"Amber",r:"Red"}[r.st.st])+'</span></td>':'<td class="c x">–</td><td class="c x">–</td><td><span class="pill n noi">No answer</span></td>')+
      '<td>'+(r.ld==null?'<span class="muted">–</span>':Math.round(r.ld))+'</td><td>'+(r.l7==null?'<span class="muted">–</span>':Math.round(r.l7))+'</td></tr>'}).join("")+'</tbody></table></div></div>';
   var days=[];for(var j=13;j>=0;j--)days.push(addDays(d,-j));
   h+='<div class="grid g2"><div class="card"><h3>Team average wellness index · 14 days</h3>'+lineChart(days.map(function(x){return {d:x,v:teamW(x)}}),cw(),5,"pts")+'<p class="muted small">Sum of the 5 questions (5 to 50). Lower is better.</p></div>'+
@@ -340,14 +472,14 @@ function missing(rows,kind){return rows.filter(function(r){return r.p.status!=="
 function remindText(kind,ps,d){var day=d===today()?"today":fd(d),names=ps.map(function(p){return "• "+p.name}).join("\n"),url=location.origin+location.pathname;
   return (kind==="w"?"Wellness reminder for "+day+". Still missing:\n"+names+"\n\nPlease fill it in before training (1 minute):\n":"Session RPE reminder for "+day+". Still missing:\n"+names+"\n\nPlease send it now (10 to 30 minutes after the session):\n")+url}
 function vReminder(rows,d){var mw=missing(rows,"w"),mr=missing(rows,"r");
-  function line(kind,ps,label){return '<div class="row between" style="gap:8px"><span><b>'+label+'</b> <span class="muted small">'+(ps.length?ps.length+" missing: "+esc(ps.map(function(p){return p.name}).join(", ")):"Everyone has sent it")+'</span></span>'+(ps.length?'<span class="row" style="gap:6px"><button class="btn sm" data-act="remind" data-v="'+kind+'">Copy reminder</button><a class="btn sm" href="https://wa.me/?text='+encodeURIComponent(remindText(kind,ps,d))+'" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">Open WhatsApp</a></span>':'')+'</div>'}
+  function line(kind,ps,label){return '<div class="row between" style="gap:8px"><span><b>'+label+'</b> <span class="muted small">'+(ps.length?ps.length+" missing: "+esc(ps.slice(0,6).map(function(p){return p.name}).join(", "))+(ps.length>6?" and "+(ps.length-6)+" more":""):"Everyone has sent it")+'</span></span>'+(ps.length?'<span class="row" style="gap:6px"><button class="btn sm" data-act="remind" data-v="'+kind+'">'+ic("copy","sm")+'Copy reminder</button><a class="btn sm" href="https://wa.me/?text='+encodeURIComponent(remindText(kind,ps,d))+'" target="_blank" rel="noopener">'+ic("chat","sm")+'Open WhatsApp</a></span>':'')+'</div>'}
   return '<div class="card"><h3>Reminders · '+fd(d)+'</h3>'+line("w",mw,"Wellness")+line("r",mr,"Session RPE")+'<p class="muted small">Injured players are left out. “Open WhatsApp” lets you pick the team group or a chat; the message includes the app link.</p><div id="remout"></div></div>'}
 function teamW(date){var v=[];activos().forEach(function(p){var e=wOf(p.id,date);if(e)v.push(wTotal(e))});return mean(v)}
 function teamL(date){var v=[];activos().forEach(function(p){var l=loadDay(p.id,date);if(l!=null)v.push(l)});return mean(v)}
 function vDetalle(pid){var p=S.players[pid],d=S.date,days=[];for(var j=27;j>=0;j--)days.push(addDays(d,-j));
   var b=base(pid,addDays(d,1)),l7=load7(pid,d),w=cw();
   var last=days.slice().reverse().filter(function(x){return wOf(pid,x)||loadDay(pid,x)!=null}).slice(0,7);
-  return '<div class="card" id="detalle" style="border-color:var(--accent)"><div class="row between"><h2><span class="num">'+esc(p.num||"–")+'</span> '+esc(p.name)+' <span class="muted small">'+esc(p.pos||"")+'</span></h2><div class="row"><button class="btn sm" data-act="openchat" data-v="'+pid+'">Open chat</button><button class="btn sm" data-act="sp" data-v="">Close</button></div></div>'+
+  return '<div class="card" id="detalle" style="border-color:var(--brand)"><div class="row between"><h2><span class="num">'+esc(p.num||"–")+'</span> '+esc(p.name)+' <span class="muted small">'+esc(p.pos||"")+'</span></h2><div class="row"><button class="btn sm" data-act="openchat" data-v="'+pid+'">'+ic("chat","sm")+'Open chat</button><button class="btn sm" data-act="sp" data-v="">'+ic("x","sm")+'Close</button></div></div>'+
    '<div class="row"><label class="f">Status<select id="d-st" data-act-change="pstatus" data-v="'+pid+'">'+Object.keys(EST).map(function(k){return '<option value="'+k+'"'+(p.status===k?' selected':'')+'>'+EST[k][0]+'</option>'}).join("")+'</select></label>'+
    '<span class="muted small">28-day wellness avg: <b>'+(b.n?r1(b.m)+" / 50":"no data")+'</b> ('+b.n+' answers) · 7-day load: <b>'+(l7==null?"no data":Math.round(l7)+" AU")+'</b></span></div>'+
    '<div class="grid g2"><div><h3>Wellness total · 28 days</h3>'+lineChart(days.map(function(x){var e=wOf(pid,x);return {d:x,v:e?wTotal(e):null}}),w,5,"pts")+'</div><div><h3>Daily load · 28 days</h3>'+barChart(days.map(function(x){return {d:x,v:loadDay(pid,x)}}),w,"AU")+'</div></div>'+
@@ -380,22 +512,22 @@ function vPlantilla(){var ps=plist(),n=D.np;
     return '<tr><td><span class="num">'+esc(p.num||"–")+'</span> '+esc(p.name)+'</td><td>'+esc(p.pos||"")+'</td><td><select id="st-'+p.id+'" data-act-change="pstatus" data-v="'+p.id+'" aria-label="Status of '+esc(p.name)+'">'+Object.keys(EST).map(function(k){return '<option value="'+k+'"'+(p.status===k?' selected':'')+'>'+EST[k][0]+'</option>'}).join("")+'</select></td><td><b style="letter-spacing:.08em">'+esc(p.code)+'</b> <button class="btn sm" data-act="copylink" data-v="'+p.id+'">Copy link</button></td><td style="text-align:left;white-space:normal;min-width:140px" class="muted small">'+esc(p.note||"")+'</td><td><button class="btn sm" data-act="detalle" data-v="'+p.id+'">View</button> '+(S.confirm==="del-"+p.id?'<button class="btn sm danger" data-act="delp" data-v="'+p.id+'">Confirm delete</button>':'<button class="btn sm" data-act="confirm" data-v="del-'+p.id+'">Delete</button>')+'</td></tr>'}).join("")+'</tbody></table></div><p class="muted small">Deleting a player also removes their wellness, RPE and chat. If they just leave the team, mark them as Out: the history is kept and their code stops working.</p>':'<p class="muted">Add the first player with the form above.</p>')+'</div>'}
 
 /* ---------- chat staff ---------- */
-function vChat(){var ps=activos(),sel=S.chat;
-  var list='<div class="clist"><button data-act="chat" data-v="team" class="'+(sel==="team"?"on":"")+'"><span>📣 Whole team</span></button>'+ps.map(function(p){var u=unreadStaff(p.id);return '<button data-act="chat" data-v="'+p.id+'" class="'+(sel===p.id?"on":"")+'"><span><span class="num">'+esc(p.num||"–")+'</span> '+esc(p.name)+'</span>'+(u?'<span class="badge">'+u+'</span>':'')+'</button>'}).join("")+'</div>';
+function vChat(){var ps=activos().sort(function(a,b){return (unreadStaff(b.id)>0)-(unreadStaff(a.id)>0)}),sel=S.chat;
+  var list='<div class="clist"><button data-act="chat" data-v="team" class="'+(sel==="team"?"on":"")+'"><span>'+ic("mega")+'Whole team</span></button>'+ps.map(function(p){var u=unreadStaff(p.id);return '<button data-act="chat" data-v="'+p.id+'" class="'+(sel===p.id?"on":"")+'"><span><span class="num">'+esc(p.num||"–")+'</span> '+esc(p.name)+'</span>'+(u?'<span class="badge">'+u+'</span>':'')+'</button>'}).join("")+'</div>';
   var t;
   if(!sel)t='<div class="card tcard"><p class="muted">Choose a player to message, or “Whole team” to send an announcement to everyone.</p></div>';
   else{var c=S.chats[sel],msgs=(c&&c.msgs)||[],nm=sel==="team"?"Announcement to the whole team":esc((S.players[sel]||{}).name||"");
-    t='<div class="card tcard"><div class="row"><button class="btn sm backbtn" data-act="chat" data-v="">←</button><h2>'+nm+'</h2></div>'+(sel==="team"?'<p class="muted small">Announcements appear in every player’s messages. Replies arrive through their individual chat.</p>':'')+thread(msgs,"staff")+composer(sel==="team"?"Write an announcement for everyone…":"Write a message…")+'</div>'}
-  return '<h2>Chat with players</h2><div class="chat'+(sel?" open":"")+'">'+list+t+'</div>'}
+    t='<div class="card tcard"><div class="row"><button class="btn icon backbtn" data-act="chat" data-v="" aria-label="Back to list">'+ic("back")+'</button><h2>'+nm+'</h2></div>'+(sel==="team"?'<p class="muted small">Announcements appear in every player’s messages. Replies arrive through their individual chat.</p>':'')+thread(msgs,"staff")+composer(sel==="team"?"Write an announcement for everyone…":"Write a message…")+'</div>'}
+  return '<div class="head"><h2>Chat with players</h2></div><div class="chat'+(sel?" open":"")+'">'+list+t+'</div>'}
 
 /* ---------- datos ---------- */
 function vDatos(){var nw=0,nr=0,k,j;for(k in S.wellness)for(j in (S.wellness[k].entries||{}))if(S.wellness[k].entries[j])nw++;for(k in S.rpe)for(j in (S.rpe[k].entries||{}))if(S.rpe[k].entries[j])nr++;
-  return '<div class="card"><h2>Export to Excel</h2><p class="muted">CSV files with one row per player and date, ready to merge with GPS, CMJ and encoder data by player and day.</p><div class="row"><button class="btn pri" data-act="csv" data-v="w">Wellness ('+nw+' rows)</button><button class="btn pri" data-act="csv" data-v="r">RPE ('+nr+' rows)</button><button class="btn" data-act="csv" data-v="p">Squad</button></div><p class="muted small">The export includes the full history. Semicolon separator.</p></div>'+
+  return '<div class="card"><h2>Export to Excel</h2><p class="muted">CSV files with one row per player and date, ready to merge with GPS, CMJ and encoder data by player and day.</p><div class="row"><button class="btn pri" data-act="csv" data-v="w">'+ic("down","sm")+'Wellness · '+nw+' rows</button><button class="btn pri" data-act="csv" data-v="r">'+ic("down","sm")+'RPE · '+nr+' rows</button><button class="btn" data-act="csv" data-v="p">'+ic("down","sm")+'Squad</button></div><p class="muted small">The export includes the full history. Semicolon separator.</p></div>'+
   '<div class="card"><h2>How it is calculated</h2>'+
    '<p><b>Wellness.</b> Five questions from 1 to 10 where higher is always worse: lack of sleep, fatigue, muscle soreness, stress and low mood. The index is the sum (5 to 50).</p>'+
    '<p><b>RPE.</b> Perceived exertion of the session from 1 to 10. Load (sRPE) is RPE × minutes, in arbitrary units.</p>'+
    '<p><b>Flag.</b> Red if any question is 8 or more, or if the total is 2 standard deviations above the player’s own 28-day average. Amber if any is 6 or 7, or the total is 1 deviation above. With fewer than 7 previous answers, fixed cut-offs are used: 25 amber and 35 red.</p>'+
-   '<p class="note">These cut-offs are a practical starting point, not validated thresholds. Wellness alone does not decide anything: it tells you who to talk to, alongside GPS, CMJ and load.</p></div>'+
+   note('These cut-offs are a practical starting point, not validated thresholds. Wellness alone does not decide anything: it tells you who to talk to, alongside GPS, CMJ and load.')+'</div>'+
   '<div class="card"><h2>How players get in</h2><p>Each player has a personal code. In Squad, press “Copy link” and send it to them. Opening the link on their phone logs them in without signing up and it is remembered for next time. Ask them to add the page to their home screen.</p></div>'+
   '<div class="card"><h2>Staff code</h2><p class="muted">This code gives access to the whole team. Do not share it with players. Minimum 6 characters.</p><div class="row" style="align-items:flex-end"><label class="f">New code<input type="text" id="newcode" data-bind="newcode" value="'+esc(D.newcode)+'" maxlength="30" autocomplete="off" style="width:200px;text-transform:uppercase"></label><button class="btn" data-act="setcode">Change code</button></div></div>'}
 function csvRows(kind){var rows=[],ps=S.players,k,j,e,p,sep=";";
@@ -411,7 +543,7 @@ function csvRows(kind){var rows=[],ps=S.players,k,j,e,p,sep=";";
   return "﻿"+rows.map(function(r){return r.map(q).join(sep)}).join("\r\n")}
 
 /* ---------- PIN ---------- */
-function vLogin(){return '<div class="card" style="max-width:400px;margin-inline:auto;width:100%"><h2>Enter your code</h2><p class="muted">It is the personal code the fitness coach gave you. You only need to enter it once on this phone.</p>'+(S.loginErr?'<p class="note">'+esc(S.loginErr)+'</p>':'')+'<div class="row"><input type="text" id="code" data-bind="code" value="'+esc(D.code)+'" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Code" style="flex:1;text-transform:uppercase;letter-spacing:.08em"><button class="btn pri" data-act="login">Enter</button></div></div>'}
+function vLogin(){return '<div class="gate"><img src="assets/crest-360.png" width="132" height="132" alt="FC Hegelmann crest"><div><h1>FC Hegelmann</h1><p class="sub">Wellness, RPE &amp; strength</p></div><div class="card"><div><h2>Enter your code</h2><p class="muted small" style="margin-top:4px">The personal code from the fitness coach. You only need it once on this phone.</p></div>'+(S.loginErr?note(esc(S.loginErr),true):'')+'<input type="text" id="code" class="codein" data-bind="code" value="'+esc(D.code)+'" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Your code" aria-label="Your code"><button class="btn pri" data-act="login">Enter</button></div></div>'}
 
 /* ---------- render ---------- */
 function render(){
@@ -422,8 +554,10 @@ function render(){
   if(!S.role)h=dbState==="loading"?wait:vLogin();
   else if(dbState==="loading"&&!Object.keys(S.players).length)h=wait;
   else h=S.role==="player"?vJugador():({panel:vPanel,plantilla:vPlantilla,tests:vTests,chat:vChat,datos:vDatos}[S.tab])();
-  if(S.role&&dbState==="offline")h='<p class="note">Offline. What you see may be out of date and sending may fail.</p>'+h;
+  if(S.role&&dbState==="offline")h=note("Offline. What you see may be out of date and sending may fail.",true)+h;
+  var vk=[S.role,S.tab,S.pv,S.rm,S.chat?1:0].join("|");
   app.innerHTML=h;
+  if(vk!==render.k){render.k=vk;app.classList.remove("enter");void app.offsetWidth;app.classList.add("enter")}
   if(fid){var el=document.getElementById(fid);if(el){el.focus({preventScroll:true});try{if(ss!=null)el.setSelectionRange(ss,se)}catch(x){}}}
   var t2=document.getElementById("thread");if(t2)t2.scrollTop=atBottom?t2.scrollHeight:keep;
 }
@@ -435,8 +569,8 @@ function kg(x){return String(Math.round(x*10)/10)}
 function plate(x){return Math.round(x/2.5)*2.5}
 function report(pid){var L=rmLatest(pid),any=EXS.some(function(e){return L[e[0]]});
   if(!any)return '<div class="card"><p class="muted">No strength tests yet. Your 1RM values will appear here after testing.</p></div>';
-  return '<p class="note">When the coach says “work at 60%”, use the weight in the 60% row for that exercise. Weights are rounded to the nearest 2.5 kg.</p><div class="grid g2">'+EXS.map(function(e){var r=L[e[0]];if(!r)return "";var pv=rmPrev(pid,e[0],r.date);
-    return '<div class="card"><div class="row between"><h3>'+e[1]+'</h3><span class="muted small">Test '+fd(r.date)+'</span></div><div class="row" style="align-items:baseline;gap:8px"><span style="font-size:28px;font-weight:600;font-variant-numeric:tabular-nums">'+kg(+r.kg)+'</span><span class="muted">kg · 1RM</span>'+(pv?'<span class="muted small">'+(r.kg-pv.kg>=0?"+":"")+kg(r.kg-pv.kg)+' kg vs '+fd(pv.date)+'</span>':'')+'</div>'+
+  return '<div class="note">'+ic("info")+'<span>When the coach says “work at 60%”, use the weight in the 60% row for that exercise. Weights are rounded to the nearest 2.5 kg.</span></div><div class="grid g2">'+EXS.map(function(e){var r=L[e[0]];if(!r)return "";var pv=rmPrev(pid,e[0],r.date);
+    return '<div class="card"><div class="row between"><h3>'+e[1]+'</h3><span class="muted small">Test '+fd(r.date)+'</span></div><div class="row" style="align-items:baseline;gap:8px"><span class="big">'+kg(+r.kg)+'</span><span class="muted">kg · 1RM</span>'+(pv?'<span class="muted small">'+(r.kg-pv.kg>=0?"+":"")+kg(r.kg-pv.kg)+' kg vs '+fd(pv.date)+'</span>':'')+'</div>'+
       '<div class="tw"><table><thead><tr><th>% 1RM</th><th>Weight</th></tr></thead><tbody>'+PCTS.map(function(p){return '<tr><td><b>'+p+'%</b></td><td style="font-weight:600">'+kg(p===100?+r.kg:plate(r.kg*p/100))+' kg</td></tr>'}).join("")+'</tbody></table></div></div>'}).join("")+'</div>'}
 function rmHistory(pid){var by={};S.onerm.forEach(function(r){if(r.pid===pid)(by[r.date]=by[r.date]||{})[r.ex]=r.kg});var ds=Object.keys(by).sort().reverse();
   if(!ds.length)return "";
@@ -444,7 +578,7 @@ function rmHistory(pid){var by={};S.onerm.forEach(function(r){if(r.pid===pid)(by
     return '<tr><td>'+fd(d)+' '+d.slice(0,4)+'</td>'+EXS.map(function(e){return '<td>'+(by[d][e[0]]!=null?kg(+by[d][e[0]])+' kg':'<span class="muted">–</span>')+'</td>'}).join("")+
      '<td>'+(S.confirm==="rmdel-"+d?'<button class="btn sm danger" data-act="delrm" data-v="'+d+'">Confirm delete</button> <button class="btn sm" data-act="confirm" data-v="">Cancel</button>':'<button class="btn sm" data-act="confirm" data-v="rmdel-'+d+'">Delete test</button>')+'</td></tr>'}).join("")+'</tbody></table></div><p class="muted small">Deleting a test removes all its values for this player. If it was the latest test, the report goes back to the previous one. To fix a single value, type the right number in Tests with the same test date and save.</p></div>'}
 function vTests(){var ps=activos(),d=S.tdate;
-  if(S.rm&&S.players[S.rm])return '<div class="row between"><h2>Test report · '+esc(S.players[S.rm].name)+'</h2><button class="btn sm" data-act="rm" data-v="">← Back to tests</button></div><p class="muted small">This is exactly what the player sees.</p>'+report(S.rm)+rmHistory(S.rm);
+  if(S.rm&&S.players[S.rm])return '<div class="row between"><h2>Test report · '+esc(S.players[S.rm].name)+'</h2><button class="btn sm" data-act="rm" data-v="">'+ic("back","sm")+'Back to tests</button></div><p class="muted small">This is exactly what the player sees.</p>'+report(S.rm)+rmHistory(S.rm);
   if(!ps.length)return '<div class="card"><h2>Strength tests</h2><p class="muted">Add players in Squad first.</p></div>';
   return '<div class="card"><div class="row between"><h2>Strength tests · 1RM (kg)</h2><label class="f">Test date<input type="date" id="t-date" data-bind="tdate" value="'+d+'" max="'+today()+'"></label></div>'+
    '<p class="muted small">Type the 1RM from your encoder test and press Save on that row. The app works out 90, 80, 70 and 60% and shows them to the player under “Test report”. Grey numbers are the current values; a field left empty keeps the current value.</p>'+
@@ -452,7 +586,7 @@ function vTests(){var ps=activos(),d=S.tdate;
      return '<tr><td><span class="num">'+esc(p.num||"–")+'</span> '+esc(p.name)+'</td>'+EXS.map(function(e){var r=L[e[0]],same=r&&r.date===d;
        return '<td><input type="number" id="rm-'+p.id+'-'+e[0]+'" inputmode="decimal" min="1" max="599" step="0.5" style="width:78px" value="'+esc(D.rmd["rm-"+p.id+"-"+e[0]]!=null?D.rmd["rm-"+p.id+"-"+e[0]]:(same?kg(+r.kg):""))+'" placeholder="'+(r?kg(+r.kg):"–")+'"'+(r&&!same?' title="Current: '+kg(+r.kg)+' kg ('+fd(r.date)+')"':'')+'></td>'}).join("")+
        '<td><button class="btn sm pri" data-act="saverm" data-v="'+p.id+'">Save</button> <button class="btn sm" data-act="rm" data-v="'+p.id+'">Report</button></td></tr>'}).join("")+'</tbody></table></div>'+
-   '<div class="row"><button class="btn" data-act="csv" data-v="m">Export 1RM history (CSV)</button></div></div>'}
+   '<div class="row"><button class="btn" data-act="csv" data-v="m">'+ic("down","sm")+'Export 1RM history (CSV)</button></div></div>'}
 
 /* ---------- acciones ---------- */
 function setPath(path,val){var a=path.split(".");if(a.length===1){if(a[0]==="date")S.date=val;else if(a[0]==="tdate"){S.tdate=val;D.rmd={}}else D[a[0]]=val}else D[a[0]][a[1]]=val}
@@ -468,10 +602,10 @@ var ACT={
  pick:function(v,el){setPath(el.getAttribute("data-b"),+v)},
  zona:function(v){var i=D.w.zona.indexOf(v);if(i>=0)D.w.zona.splice(i,1);else D.w.zona.push(v)},
  saveW:function(){var w=D.w,me=S.me,e={date:w.date,s:w.s,f:w.f,d:w.d,e:w.e,a:w.a,h:w.h===""?null:+w.h,zona:w.d>=4?w.zona.slice():[],c:(w.c||"").trim()},old=wOf(me,w.date);
-   ent(S.wellness,me).entries[w.date]=e;S.pv="home";S.sent="✓ Wellness for "+fd(w.date)+" sent. Thank you.";
+   ent(S.wellness,me).entries[w.date]=e;S.pv="home";S.sent="Wellness for "+fd(w.date)+" sent. Thank you.";
    call("player_save_wellness",{p_date:e.date,p_s:e.s,p_f:e.f,p_d:e.d,p_e:e.e,p_a:e.a,p_h:e.h,p_zona:e.zona,p_c:e.c}).then(refresh,function(){if(!S.role)return;S.sent=null;if(old)S.wellness[me].entries[w.date]=old;else delete S.wellness[me].entries[w.date];S.pv="wellness";render()})},
  saveR:function(){var r=D.r,me=S.me,k=r.date+"_"+r.tipo,e={date:r.date,tipo:r.tipo,min:Math.round(+r.min),rpe:r.rpe},old=S.rpe[me]&&S.rpe[me].entries[k];
-   ent(S.rpe,me).entries[k]=e;S.pv="home";S.sent="✓ RPE for "+fd(r.date)+" sent. Thank you.";
+   ent(S.rpe,me).entries[k]=e;S.pv="home";S.sent="RPE for "+fd(r.date)+" sent. Thank you.";
    call("player_save_rpe",{p_date:e.date,p_tipo:e.tipo,p_min:e.min,p_rpe:e.rpe}).then(refresh,function(){if(!S.role)return;S.sent=null;if(old)S.rpe[me].entries[k]=old;else delete S.rpe[me].entries[k];S.pv="rpe";render()})},
  send:function(){var tx=(D.msg||"").trim();if(!tx)return;var staff=S.role==="staff",id=staff?S.chat:S.me;if(!id)return;
    var c=S.chats[id]||(S.chats[id]={msgs:[]});c.msgs.push({t:Date.now(),from:staff?"staff":"player",text:tx});D.msg="";

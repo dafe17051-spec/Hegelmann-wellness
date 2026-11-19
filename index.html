@@ -167,8 +167,9 @@ var COLLS=["players","wellness","rpe","chats","config"];
 
 /* ---------- estado ---------- */
 var API="https://qzmnfxujyxtsshrmyhkc.supabase.co/rest/v1/rpc/",KEY="sb_publishable_iZS_6Vdo-loKba416ioBZg_Y5BHR-im";
-var S={role:null,code:null,tab:"panel",date:today(),me:null,pv:"home",sp:null,chat:null,players:{},wellness:{},rpe:{},chats:{},confirm:null,sent:null,loginErr:""};
-var D={w:null,r:null,msg:"",np:{name:"",num:"",pos:"CM"},code:"",newcode:""};
+var EXS=[["squat","Back squat"],["bench","Bench press"],["benchpull","Bench pull"],["hipthrust","Hip thrust"],["deadlift","Deadlift"]],PCTS=[100,90,80,70,60];
+var S={onerm:[],tdate:today(),rm:null,role:null,code:null,tab:"panel",date:today(),me:null,pv:"home",sp:null,chat:null,players:{},wellness:{},rpe:{},chats:{},confirm:null,sent:null,loginErr:""};
+var D={rmd:{},w:null,r:null,msg:"",np:{name:"",num:"",pos:"CM"},code:"",newcode:""};
 var dbState="idle",lastSync=null,busy=0;
 
 /* ---------- utilidades ---------- */
@@ -233,7 +234,8 @@ function mapPlayer(d){var id=d.player.id,P={},W={},R={},C={};S.me=id;P[id]=d.pla
   S.players=P;S.wellness=W;S.rpe=R;S.chats=C}
 function refresh(days){if(!S.role)return Promise.resolve();
   var p=S.role==="staff"?rpc("staff_state",{p_code:S.code,p_days:typeof days==="number"?days:60}).then(mapStaff):rpc("player_state",{p_code:S.code}).then(mapPlayer);
-  return p.then(function(){dbState="ok";lastSync=new Date();render()},function(e){if(e.auth)logout("Your code is no longer valid. Ask the fitness coach for a new one.");else{dbState="offline";render()}})}
+  var q=rpc(S.role==="staff"?"staff_onerm":"player_onerm",{p_code:S.code}).then(function(j){S.onerm=j||[]},noop);
+  return Promise.all([p,q]).then(function(){dbState="ok";lastSync=new Date();render()},function(e){if(e.auth)logout("Your code is no longer valid. Ask the fitness coach for a new one.");else{dbState="offline";render()}})}
 function store(v){try{if(v)localStorage.setItem("hw_code",v);else localStorage.removeItem("hw_code")}catch(x){}}
 function doLogin(code){code=(code||"").trim().toUpperCase();if(!code)return;dbState="loading";S.loginErr="";render();
   rpc("login",{p_code:code}).then(function(j){
@@ -245,7 +247,7 @@ function savePlayer(id,patch){var p=S.players[id],k;for(k in patch)p[k]=patch[k]
   return call("staff_save_player",{p_id:id,p_name:p.name,p_num:p.num==null?null:+p.num,p_pos:p.pos,p_status:p.status,p_note:p.note||""}).then(refresh,function(){refresh()})}
 
 /* ---------- pestañas ---------- */
-var TABS=[["panel","Dashboard"],["plantilla","Squad"],["chat","Chat"],["datos","Data"]];
+var TABS=[["panel","Dashboard"],["plantilla","Squad"],["tests","Tests"],["chat","Chat"],["datos","Data"]];
 function renderTabs(){var el=document.getElementById("tabs");
   if(S.role==="staff"){var u=unreadStaffAll();el.hidden=false;
     el.innerHTML=TABS.map(function(t){return '<button data-act="tab" data-v="'+t[0]+'" aria-current="'+(S.tab===t[0])+'">'+t[1]+(t[0]==="chat"&&u?'<span class="badge">'+u+'</span>':'')+'</button>'}).join("")+'<button data-act="logout" style="margin-left:auto">Log out</button>'}
@@ -262,6 +264,7 @@ function vJugador(){
      (S.sent?'<p class="ok-big">'+esc(S.sent)+'</p>':'')+
      '<button class="task" data-act="pv" data-v="wellness"><span><b>Wellness</b><span class="muted small">Before training · 1 minute</span></span>'+(w?'<span class="pill g">✓ Sent</span>':'<span class="pill a">Pending</span>')+'</button>'+
      '<button class="task" data-act="pv" data-v="rpe"><span><b>Session RPE</b><span class="muted small">10 to 30 minutes after finishing</span></span>'+(rs.length?'<span class="pill g">✓ '+rs.length+' sent</span>':'<span class="pill n">Not sent</span>')+'</button>'+
+     '<button class="task" data-act="pv" data-v="report"><span><b>Test report</b><span class="muted small">Your 1RM and training weights by %</span></span>'+(EXS.some(function(e){return rmLatest(S.me)[e[0]]})?'<span class="pill g">Ready</span>':'<span class="pill n">No tests yet</span>')+'</button>'+
      '<button class="task" data-act="pv" data-v="chat"><span><b>Messages</b><span class="muted small">Chat with the fitness coach</span></span>'+(u?'<span class="badge">'+u+' new</span>':'<span class="pill n">Up to date</span>')+'</button>';
   }
   var back='<div><button class="btn sm" data-act="pv" data-v="home">← Back</button></div>';
@@ -275,6 +278,7 @@ function vJugador(){
      '<label class="f">Comment for the staff (optional)<textarea id="w-c" data-bind="w.c" maxlength="300">'+esc(w2.c)+'</textarea></label></div>'+
      '<div class="row"><button class="btn pri" data-act="saveW" '+(ok?'':'disabled')+'>'+(ex?'Update wellness':'Send wellness')+'</button>'+(ok?'':'<span class="muted small">Answer all 5 questions to send.</span>')+'</div></div>';
   }
+  if(S.pv==="report")return head+back+'<h2>Test report</h2>'+report(S.me);
   if(S.pv==="rpe"){var r=D.r,okr=r.rpe&&+r.min>0;
     return head+back+'<div class="card"><h2>Session RPE</h2>'+
      '<div class="row"><label class="f">Session date<input type="date" id="r-date" data-bind="r.date" value="'+r.date+'" max="'+today()+'"></label>'+
@@ -400,6 +404,8 @@ function csvRows(kind){var rows=[],ps=S.players,k,j,e,p,sep=";";
     for(k in S.wellness){p=ps[k]||{};for(j in (S.wellness[k].entries||{})){e=S.wellness[k].entries[j];if(e)rows.push([j,p.name,p.num,p.pos,e.s,e.f,e.d,e.e,e.a,wTotal(e),e.h,(e.zona||[]).join(", "),e.c])}}}
   else if(kind==="r"){rows.push(["date","player","number","position","session_type","minutes","rpe","srpe_au"]);
     for(k in S.rpe){p=ps[k]||{};for(j in (S.rpe[k].entries||{})){e=S.rpe[k].entries[j];if(e)rows.push([e.date,p.name,p.num,p.pos,e.tipo,e.min,e.rpe,e.rpe*e.min])}}}
+  else if(kind==="m"){rows.push(["date","player","number","position","exercise","one_rm_kg"]);var EN={};EXS.forEach(function(e){EN[e[0]]=e[1]});
+    S.onerm.forEach(function(r){p=ps[r.pid]||{};rows.push([r.date,p.name,p.num,p.pos,EN[r.ex],r.kg])})}
   else{rows.push(["player","number","position","status","note"]);plist().forEach(function(x){rows.push([x.name,x.num,x.pos,(EST[x.status]||EST.ok)[0],x.note])})}
   var head=rows.shift();rows.sort(function(a,b){return a[0]<b[0]?-1:a[0]>b[0]?1:String(a[1]).localeCompare(String(b[1]))});rows.unshift(head);
   return "﻿"+rows.map(function(r){return r.map(q).join(sep)}).join("\r\n")}
@@ -415,15 +421,36 @@ function render(){
   renderTabs();var h,wait='<div class="card"><p class="muted">Loading…</p></div>';
   if(!S.role)h=dbState==="loading"?wait:vLogin();
   else if(dbState==="loading"&&!Object.keys(S.players).length)h=wait;
-  else h=S.role==="player"?vJugador():({panel:vPanel,plantilla:vPlantilla,chat:vChat,datos:vDatos}[S.tab])();
+  else h=S.role==="player"?vJugador():({panel:vPanel,plantilla:vPlantilla,tests:vTests,chat:vChat,datos:vDatos}[S.tab])();
   if(S.role&&dbState==="offline")h='<p class="note">Offline. What you see may be out of date and sending may fail.</p>'+h;
   app.innerHTML=h;
   if(fid){var el=document.getElementById(fid);if(el){el.focus({preventScroll:true});try{if(ss!=null)el.setSelectionRange(ss,se)}catch(x){}}}
   var t2=document.getElementById("thread");if(t2)t2.scrollTop=atBottom?t2.scrollHeight:keep;
 }
 
+/* ---------- 1RM ---------- */
+function rmLatest(pid){var o={};S.onerm.forEach(function(r){if(r.pid===pid&&(!o[r.ex]||r.date>=o[r.ex].date))o[r.ex]=r});return o}
+function rmPrev(pid,ex,date){var b=null;S.onerm.forEach(function(r){if(r.pid===pid&&r.ex===ex&&r.date<date&&(!b||r.date>b.date))b=r});return b}
+function kg(x){return String(Math.round(x*10)/10)}
+function plate(x){return Math.round(x/2.5)*2.5}
+function report(pid){var L=rmLatest(pid),any=EXS.some(function(e){return L[e[0]]});
+  if(!any)return '<div class="card"><p class="muted">No strength tests yet. Your 1RM values will appear here after testing.</p></div>';
+  return '<p class="note">When the coach says “work at 60%”, use the weight in the 60% row for that exercise. Weights are rounded to the nearest 2.5 kg.</p><div class="grid g2">'+EXS.map(function(e){var r=L[e[0]];if(!r)return "";var pv=rmPrev(pid,e[0],r.date);
+    return '<div class="card"><div class="row between"><h3>'+e[1]+'</h3><span class="muted small">Test '+fd(r.date)+'</span></div><div class="row" style="align-items:baseline;gap:8px"><span style="font-size:28px;font-weight:600;font-variant-numeric:tabular-nums">'+kg(+r.kg)+'</span><span class="muted">kg · 1RM</span>'+(pv?'<span class="muted small">'+(r.kg-pv.kg>=0?"+":"")+kg(r.kg-pv.kg)+' kg vs '+fd(pv.date)+'</span>':'')+'</div>'+
+      '<div class="tw"><table><thead><tr><th>% 1RM</th><th>Weight</th></tr></thead><tbody>'+PCTS.map(function(p){return '<tr><td><b>'+p+'%</b></td><td style="font-weight:600">'+kg(p===100?+r.kg:plate(r.kg*p/100))+' kg</td></tr>'}).join("")+'</tbody></table></div></div>'}).join("")+'</div>'}
+function vTests(){var ps=activos(),d=S.tdate;
+  if(S.rm&&S.players[S.rm])return '<div class="row between"><h2>Test report · '+esc(S.players[S.rm].name)+'</h2><button class="btn sm" data-act="rm" data-v="">← Back to tests</button></div><p class="muted small">This is exactly what the player sees.</p>'+report(S.rm);
+  if(!ps.length)return '<div class="card"><h2>Strength tests</h2><p class="muted">Add players in Squad first.</p></div>';
+  return '<div class="card"><div class="row between"><h2>Strength tests · 1RM (kg)</h2><label class="f">Test date<input type="date" id="t-date" data-bind="tdate" value="'+d+'" max="'+today()+'"></label></div>'+
+   '<p class="muted small">Type the 1RM from your encoder test and press Save on that row. The app works out 90, 80, 70 and 60% and shows them to the player under “Test report”. Grey numbers are the current values; a field left empty keeps the current value.</p>'+
+   '<div class="tw"><table><thead><tr><th>Player</th>'+EXS.map(function(e){return '<th>'+e[1]+'</th>'}).join("")+'<th></th></tr></thead><tbody>'+ps.map(function(p){var L=rmLatest(p.id);
+     return '<tr><td><span class="num">'+esc(p.num||"–")+'</span> '+esc(p.name)+'</td>'+EXS.map(function(e){var r=L[e[0]],same=r&&r.date===d;
+       return '<td><input type="number" id="rm-'+p.id+'-'+e[0]+'" inputmode="decimal" min="1" max="599" step="0.5" style="width:78px" value="'+esc(D.rmd["rm-"+p.id+"-"+e[0]]!=null?D.rmd["rm-"+p.id+"-"+e[0]]:(same?kg(+r.kg):""))+'" placeholder="'+(r?kg(+r.kg):"–")+'"'+(r&&!same?' title="Current: '+kg(+r.kg)+' kg ('+fd(r.date)+')"':'')+'></td>'}).join("")+
+       '<td><button class="btn sm pri" data-act="saverm" data-v="'+p.id+'">Save</button> <button class="btn sm" data-act="rm" data-v="'+p.id+'">Report</button></td></tr>'}).join("")+'</tbody></table></div>'+
+   '<div class="row"><button class="btn" data-act="csv" data-v="m">Export 1RM history (CSV)</button></div></div>'}
+
 /* ---------- acciones ---------- */
-function setPath(path,val){var a=path.split(".");if(a.length===1){if(a[0]==="date")S.date=val;else D[a[0]]=val}else D[a[0]][a[1]]=val}
+function setPath(path,val){var a=path.split(".");if(a.length===1){if(a[0]==="date")S.date=val;else if(a[0]==="tdate"){S.tdate=val;D.rmd={}}else D[a[0]]=val}else D[a[0]][a[1]]=val}
 function openW(date){var e=wOf(S.me,date);D.w=e?{date:date,s:e.s,f:e.f,d:e.d,e:e.e,a:e.a,h:e.h||"",zona:(e.zona||[]).slice(),c:e.c||""}:{date:date,s:0,f:0,d:0,e:0,a:0,h:"",zona:[],c:""}}
 function noop(){}
 function markReadPlayer(pid){if(!unreadPlayer(pid))return;var now=Date.now();if(S.chats[pid])S.chats[pid].readPlayer=now;if(S.chats.team){S.chats.team.reads=S.chats.team.reads||{};S.chats.team.reads[pid]=now}call("player_mark_read").catch(noop)}
@@ -454,6 +481,10 @@ var ACT={
  confirm:function(v){S.confirm=v},
  delp:function(v){S.confirm=null;if(S.sp===v)S.sp=null;if(S.chat===v)S.chat=null;delete S.players[v];call("staff_delete_player",{p_id:v}).then(refresh,function(){refresh()})},
  savenote:function(v){var el=document.getElementById("d-note");savePlayer(v,{note:el.value.trim()}).then(function(){toast("Note saved")})},
+ rm:function(v){S.rm=v||null;window.scrollTo(0,0)},
+ saverm:function(v){var vals={},n=0,bad=false;EXS.forEach(function(e){var el=document.getElementById("rm-"+v+"-"+e[0]);if(!el||el.value==="")return;var x=+el.value;if(!(x>0&&x<600)){bad=true;return}vals[e[0]]=x;n++});
+   if(bad){toast("Use a weight between 1 and 599 kg");return "norender"}if(!n){toast("Type at least one 1RM");return "norender"}
+   var name=S.players[v].name;call("staff_save_onerm",{p_player:v,p_date:S.tdate,p_values:vals}).then(function(){EXS.forEach(function(e){delete D.rmd["rm-"+v+"-"+e[0]]});toast(name+": "+n+" value"+(n>1?"s":"")+" saved");return refresh()},noop);return "norender"},
  remind:function(v){var d=S.date,rows=activos().map(function(p){return {p:p,st:estado(p.id,d),ld:loadDay(p.id,d)}}),txt=remindText(v,missing(rows,v),d);
    function fb(){var o=document.getElementById("remout");if(!o)return;o.innerHTML='<textarea id="remta" rows="7" readonly></textarea>';var ta=document.getElementById("remta");ta.value=txt;ta.select();toast("Select the text and copy it")}
    try{navigator.clipboard.writeText(txt).then(function(){toast("Reminder copied. Paste it in WhatsApp")},fb)}catch(x){fb()}return "norender"},
@@ -461,15 +492,15 @@ var ACT={
    try{navigator.clipboard.writeText(url).then(function(){toast(p.name+"'s link copied")},function(){toast(p.name+"'s code: "+p.code)})}catch(x){toast(p.name+"'s code: "+p.code)}return "norender"},
  setcode:function(){var p=(D.newcode||"").trim().toUpperCase();if(p.length<6){toast("Use at least 6 characters");return}
    call("staff_set_code",{p_new:p}).then(function(){S.code=p;store(p);D.newcode="";toast("Staff code changed");render()},noop)},
- csv:function(v){var name={w:"wellness",r:"rpe",p:"squad"}[v]+"_hegelmann_"+today()+".csv";
+ csv:function(v){var name={w:"wellness",r:"rpe",p:"squad",m:"one_rm"}[v]+"_hegelmann_"+today()+".csv";
    refresh(3650).then(function(){if(dbState!=="ok"){toast("Offline: could not export");return}
      try{var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csvRows(v)],{type:"text/csv;charset=utf-8"}));a.download=name;document.body.appendChild(a);a.click();a.remove();toast("File downloaded")}catch(x){toast("Could not download the file")}});return "norender"}
 };
 document.addEventListener("click",function(ev){var el=ev.target.closest("[data-act]");if(!el)return;var a=el.getAttribute("data-act");if(!ACT[a]||el.disabled)return;
   if(el.tagName==="TR"&&ev.target.closest("button,select,input"))return;
   var r=ACT[a](el.getAttribute("data-v"),el);if(r!=="norender")render()});
-document.addEventListener("input",function(ev){var el=ev.target,b=el.getAttribute&&el.getAttribute("data-bind");if(!b)return;setPath(b,el.value);
-  if(b==="w.date"){if(el.value){openW(el.value);render()}}else if(b==="date"){if(el.value)render()}else if(b==="r.min"||b==="r.date"||b==="r.tipo"){var btn=document.querySelector('[data-act="saveR"]');if(btn&&b==="r.min")render()}});
+document.addEventListener("input",function(ev){if(ev.target.id&&ev.target.id.indexOf("rm-")===0){D.rmd[ev.target.id]=ev.target.value;return}var el=ev.target,b=el.getAttribute&&el.getAttribute("data-bind");if(!b)return;setPath(b,el.value);
+  if(b==="w.date"){if(el.value){openW(el.value);render()}}else if(b==="date"||b==="tdate"){if(el.value)render()}else if(b==="r.min"||b==="r.date"||b==="r.tipo"){var btn=document.querySelector('[data-act="saveR"]');if(btn&&b==="r.min")render()}});
 document.addEventListener("change",function(ev){var el=ev.target,a=el.getAttribute&&el.getAttribute("data-act-change");if(a==="pstatus")savePlayer(el.getAttribute("data-v"),{status:el.value})});
 document.addEventListener("keydown",function(ev){if(ev.key!=="Enter")return;var id=ev.target.id;if(id==="msg"){ACT.send();render()}else if(id==="code"){doLogin(D.code)}else if(id==="np-name"||id==="np-num"){ACT.addp();render()}});
 /* tooltip */

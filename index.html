@@ -438,8 +438,13 @@ function report(pid){var L=rmLatest(pid),any=EXS.some(function(e){return L[e[0]]
   return '<p class="note">When the coach says “work at 60%”, use the weight in the 60% row for that exercise. Weights are rounded to the nearest 2.5 kg.</p><div class="grid g2">'+EXS.map(function(e){var r=L[e[0]];if(!r)return "";var pv=rmPrev(pid,e[0],r.date);
     return '<div class="card"><div class="row between"><h3>'+e[1]+'</h3><span class="muted small">Test '+fd(r.date)+'</span></div><div class="row" style="align-items:baseline;gap:8px"><span style="font-size:28px;font-weight:600;font-variant-numeric:tabular-nums">'+kg(+r.kg)+'</span><span class="muted">kg · 1RM</span>'+(pv?'<span class="muted small">'+(r.kg-pv.kg>=0?"+":"")+kg(r.kg-pv.kg)+' kg vs '+fd(pv.date)+'</span>':'')+'</div>'+
       '<div class="tw"><table><thead><tr><th>% 1RM</th><th>Weight</th></tr></thead><tbody>'+PCTS.map(function(p){return '<tr><td><b>'+p+'%</b></td><td style="font-weight:600">'+kg(p===100?+r.kg:plate(r.kg*p/100))+' kg</td></tr>'}).join("")+'</tbody></table></div></div>'}).join("")+'</div>'}
+function rmHistory(pid){var by={};S.onerm.forEach(function(r){if(r.pid===pid)(by[r.date]=by[r.date]||{})[r.ex]=r.kg});var ds=Object.keys(by).sort().reverse();
+  if(!ds.length)return "";
+  return '<div class="card"><h3>Test history · staff only</h3><div class="tw"><table><thead><tr><th>Test date</th>'+EXS.map(function(e){return '<th>'+e[1]+'</th>'}).join("")+'<th></th></tr></thead><tbody>'+ds.map(function(d){
+    return '<tr><td>'+fd(d)+' '+d.slice(0,4)+'</td>'+EXS.map(function(e){return '<td>'+(by[d][e[0]]!=null?kg(+by[d][e[0]])+' kg':'<span class="muted">–</span>')+'</td>'}).join("")+
+     '<td>'+(S.confirm==="rmdel-"+d?'<button class="btn sm danger" data-act="delrm" data-v="'+d+'">Confirm delete</button> <button class="btn sm" data-act="confirm" data-v="">Cancel</button>':'<button class="btn sm" data-act="confirm" data-v="rmdel-'+d+'">Delete test</button>')+'</td></tr>'}).join("")+'</tbody></table></div><p class="muted small">Deleting a test removes all its values for this player. If it was the latest test, the report goes back to the previous one. To fix a single value, type the right number in Tests with the same test date and save.</p></div>'}
 function vTests(){var ps=activos(),d=S.tdate;
-  if(S.rm&&S.players[S.rm])return '<div class="row between"><h2>Test report · '+esc(S.players[S.rm].name)+'</h2><button class="btn sm" data-act="rm" data-v="">← Back to tests</button></div><p class="muted small">This is exactly what the player sees.</p>'+report(S.rm);
+  if(S.rm&&S.players[S.rm])return '<div class="row between"><h2>Test report · '+esc(S.players[S.rm].name)+'</h2><button class="btn sm" data-act="rm" data-v="">← Back to tests</button></div><p class="muted small">This is exactly what the player sees.</p>'+report(S.rm)+rmHistory(S.rm);
   if(!ps.length)return '<div class="card"><h2>Strength tests</h2><p class="muted">Add players in Squad first.</p></div>';
   return '<div class="card"><div class="row between"><h2>Strength tests · 1RM (kg)</h2><label class="f">Test date<input type="date" id="t-date" data-bind="tdate" value="'+d+'" max="'+today()+'"></label></div>'+
    '<p class="muted small">Type the 1RM from your encoder test and press Save on that row. The app works out 90, 80, 70 and 60% and shows them to the player under “Test report”. Grey numbers are the current values; a field left empty keeps the current value.</p>'+
@@ -478,10 +483,13 @@ var ACT={
  chat:function(v){S.chat=v||null;D.msg="";if(v)markReadStaff(v)},
  addp:function(){var n=D.np,name=(n.name||"").trim();if(!name){toast("Enter the player's name");return}
    D.np={name:"",num:"",pos:n.pos};call("staff_save_player",{p_id:null,p_name:name,p_num:n.num===""?null:+n.num,p_pos:n.pos,p_status:"ok",p_note:""}).then(function(){toast("Player added");return refresh()},noop)},
- confirm:function(v){S.confirm=v},
+ confirm:function(v){S.confirm=v||null},
  delp:function(v){S.confirm=null;if(S.sp===v)S.sp=null;if(S.chat===v)S.chat=null;delete S.players[v];call("staff_delete_player",{p_id:v}).then(refresh,function(){refresh()})},
  savenote:function(v){var el=document.getElementById("d-note");savePlayer(v,{note:el.value.trim()}).then(function(){toast("Note saved")})},
  rm:function(v){S.rm=v||null;window.scrollTo(0,0)},
+ delrm:function(d){var pid=S.rm,vals={};S.confirm=null;S.onerm.forEach(function(r){if(r.pid===pid&&r.date===d)vals[r.ex]=null});
+   S.onerm=S.onerm.filter(function(r){return !(r.pid===pid&&r.date===d)});
+   call("staff_save_onerm",{p_player:pid,p_date:d,p_values:vals}).then(function(){toast("Test of "+fd(d)+" deleted");return refresh()},function(){refresh()})},
  saverm:function(v){var vals={},n=0,bad=false;EXS.forEach(function(e){var el=document.getElementById("rm-"+v+"-"+e[0]);if(!el||el.value==="")return;var x=+el.value;if(!(x>0&&x<600)){bad=true;return}vals[e[0]]=x;n++});
    if(bad){toast("Use a weight between 1 and 599 kg");return "norender"}if(!n){toast("Type at least one 1RM");return "norender"}
    var name=S.players[v].name;call("staff_save_onerm",{p_player:v,p_date:S.tdate,p_values:vals}).then(function(){EXS.forEach(function(e){delete D.rmd["rm-"+v+"-"+e[0]]});toast(name+": "+n+" value"+(n>1?"s":"")+" saved");return refresh()},noop);return "norender"},

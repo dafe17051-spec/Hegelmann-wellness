@@ -187,6 +187,11 @@ td.c.x{color:var(--fg3);font-weight:400}
 .num{font-weight:700;color:var(--brand);font-variant-numeric:tabular-nums;display:inline-block;min-width:24px}
 /* ---- attention ---- */
 #detalle{scroll-margin-top:140px}
+.srows{display:flex;flex-direction:column}
+.srow{display:grid;grid-template-columns:minmax(0,1fr) 84px auto 30px;gap:8px;align-items:center;padding-block:10px;border-top:1px solid var(--line)}
+.srow:first-child{border-top:0;padding-top:0}
+.srow>span:first-child{display:flex;flex-direction:column;min-width:0}
+.srow input{width:84px}
 .att{display:flex;flex-direction:column}
 .att button{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:none;border:0;border-top:1px solid var(--line);padding:12px 0;text-align:left;width:100%}
 .att button:first-child{border-top:0;padding-top:0}
@@ -287,8 +292,8 @@ var COLLS=["players","wellness","rpe","chats","config"];
 /* ---------- estado ---------- */
 var API="https://qzmnfxujyxtsshrmyhkc.supabase.co/rest/v1/rpc/",KEY="sb_publishable_iZS_6Vdo-loKba416ioBZg_Y5BHR-im";
 var EXS=[["squat","Back squat"],["bench","Bench press"],["benchpull","Bench pull"],["hipthrust","Hip thrust"],["deadlift","Deadlift"]],PCTS=[100,90,80,70,60];
-var S={onerm:[],tdate:today(),rm:null,role:null,code:null,tab:"panel",date:today(),me:null,pv:"home",sp:null,chat:null,players:{},wellness:{},rpe:{},chats:{},confirm:null,sent:null,loginErr:""};
-var D={rmd:{},w:null,r:null,msg:"",np:{name:"",num:"",pos:"CM"},code:"",newcode:""};
+var S={sess:{},onerm:[],tdate:today(),rm:null,role:null,code:null,tab:"panel",date:today(),me:null,pv:"home",sp:null,chat:null,players:{},wellness:{},rpe:{},chats:{},confirm:null,sent:null,loginErr:""};
+var D={sd:{},rmd:{},w:null,r:null,msg:"",np:{name:"",num:"",pos:"CM"},code:"",newcode:""};
 var dbState="idle",lastSync=null,busy=0;
 
 /* ---------- utilidades ---------- */
@@ -321,7 +326,8 @@ function toast(t){var e=document.getElementById("toast");e.innerHTML=ic("check")
 function wOf(pid,date){var d=S.wellness[pid];var e=d&&d.entries&&d.entries[date];return e||null}
 function wTotal(e){return e.s+e.f+e.d+e.e+e.a}
 function rOf(pid,date){var d=S.rpe[pid],out=[];if(d&&d.entries)for(var k in d.entries){var e=d.entries[k];if(e&&e.date===date)out.push(e)}return out}
-function loadDay(pid,date){var a=rOf(pid,date);if(!a.length)return null;return a.reduce(function(s,e){return s+e.rpe*e.min},0)}
+function sMin(e){var m=S.sess[e.date+"_"+e.tipo];return m||e.min||null}
+function loadDay(pid,date){var a=rOf(pid,date).filter(sMin);if(!a.length)return null;return a.reduce(function(s,e){return s+e.rpe*sMin(e)},0)}
 function load7(pid,date){var s=0,n=0;for(var i=0;i<7;i++){var l=loadDay(pid,addDays(date,-i));if(l!=null){s+=l;n++}}return n?s:null}
 function base(pid,date){var d=S.wellness[pid],v=[];if(d&&d.entries)for(var i=1;i<=28;i++){var e=d.entries[addDays(date,-i)];if(e)v.push(wTotal(e))}
   return {n:v.length,m:mean(v),sd:sd(v)}}
@@ -361,7 +367,8 @@ function mapPlayer(d){var id=d.player.id,P={},W={},R={},C={};S.me=id;P[id]=d.pla
 function refresh(days){if(!S.role)return Promise.resolve();
   var p=S.role==="staff"?rpc("staff_state",{p_code:S.code,p_days:typeof days==="number"?days:60}).then(mapStaff):rpc("player_state",{p_code:S.code}).then(mapPlayer);
   var q=rpc(S.role==="staff"?"staff_onerm":"player_onerm",{p_code:S.code}).then(function(j){S.onerm=j||[]},noop);
-  return Promise.all([p,q]).then(function(){dbState="ok";lastSync=new Date();render()},function(e){if(e.auth)logout("Your code is no longer valid. Ask the fitness coach for a new one.");else{dbState="offline";render()}})}
+  var q2=S.role==="staff"?rpc("staff_sessions",{p_code:S.code,p_days:typeof days==="number"?days:60}).then(function(j){var o={};(j||[]).forEach(function(x){o[x.date+"_"+x.tipo]=x.min});S.sess=o},noop):null;
+  return Promise.all([p,q,q2]).then(function(){dbState="ok";lastSync=new Date();render()},function(e){if(e.auth)logout("Your code is no longer valid. Ask the fitness coach for a new one.");else{dbState="offline";render()}})}
 function store(v){try{if(v)localStorage.setItem("hw_code",v);else localStorage.removeItem("hw_code")}catch(x){}}
 function doLogin(code){code=(code||"").trim().toUpperCase();if(!code)return;dbState="loading";S.loginErr="";render();
   rpc("login",{p_code:code}).then(function(j){
@@ -411,14 +418,13 @@ function vJugador(){
      '<div class="row"><button class="btn pri" data-act="saveW" '+(ok?'':'disabled')+'>'+(ex?'Update wellness':'Send wellness')+'</button>'+(ok?'':'<span class="muted small">Answer all 5 questions to send.</span>')+'</div></div>';
   }
   if(S.pv==="report")return back+'<div class="head"><h2>Test report</h2><span class="muted small">'+esc(p.name)+'</span></div>'+report(S.me);
-  if(S.pv==="rpe"){var r=D.r,okr=r.rpe&&+r.min>0;
+  if(S.pv==="rpe"){var r=D.r,okr=!!r.rpe;
     return back+'<div class="card"><h2>Session RPE</h2>'+
      '<div class="row"><label class="f">Session date<input type="date" id="r-date" data-bind="r.date" value="'+r.date+'" max="'+today()+'"></label>'+
-     '<label class="f">Session type<select id="r-tipo" data-bind="r.tipo">'+TIPOS.map(function(t){return '<option'+(t===r.tipo?' selected':'')+'>'+t+'</option>'}).join("")+'</select></label>'+
-     '<label class="f">Duration (min)<input type="number" id="r-min" data-bind="r.min" value="'+esc(r.min)+'" min="1" max="300" inputmode="numeric" style="width:110px"></label></div>'+
+     '<label class="f">Session type<select id="r-tipo" data-bind="r.tipo">'+TIPOS.map(function(t){return '<option'+(t===r.tipo?' selected':'')+'>'+t+'</option>'}).join("")+'</select></label></div>'+
      '<div class="q"><span class="t">How hard was the session overall?</span><span class="muted">1 is very, very easy and 10 is the hardest effort you can give.</span>'+scale("r.rpe",r.rpe,false)+
-     '<div class="ramp b" aria-hidden="true"></div><div class="ends"><span>1 · Very, very easy</span><span>10 · Maximal</span></div>'+(r.rpe?'<p class="row" style="gap:8px;align-items:baseline"><span class="big">'+r.rpe+'</span><b>'+RPE_TXT[r.rpe]+'</b>'+(+r.min>0?'<span class="muted small">· '+Math.round(r.rpe*r.min)+' AU</span>':'')+'</p>':'')+'</div>'+
-     '<div class="row"><button class="btn pri" data-act="saveR" '+(okr?'':'disabled')+'>Send RPE</button>'+(okr?'':'<span class="muted small">Enter the duration and the RPE.</span>')+'</div></div>'+
+     '<div class="ramp b" aria-hidden="true"></div><div class="ends"><span>1 · Very, very easy</span><span>10 · Maximal</span></div>'+(r.rpe?'<p class="row" style="gap:8px;align-items:baseline"><span class="big">'+r.rpe+'</span><b>'+RPE_TXT[r.rpe]+'</b></p>':'')+'</div>'+
+     '<div class="row"><button class="btn pri" data-act="saveR" '+(okr?'':'disabled')+'>Send RPE</button>'+(okr?'':'<span class="muted small">Choose your RPE to send.</span>')+'</div></div>'+
      rpeList(S.me);
   }
   /* chat jugador */
@@ -430,7 +436,7 @@ function vJugador(){
 function scale(bind,val,bad){var h='<div class="scale">';for(var i=1;i<=10;i++)h+='<button data-act="pick" data-b="'+bind+'" data-v="'+i+'" class="'+(val===i?"on "+(bad?lvl(i):"b"):"")+'" aria-pressed="'+(val===i)+'">'+i+'</button>';return h+'</div>'}
 function rpeList(pid){var d=S.rpe[pid],a=[];if(d&&d.entries)for(var k in d.entries)if(d.entries[k])a.push(d.entries[k]);
   a.sort(function(x,y){return x.date<y.date?1:-1});a=a.slice(0,6);if(!a.length)return "";
-  return '<div class="card"><h3>Your latest RPE</h3><div class="tw"><table><thead><tr><th>Date</th><th>Session</th><th>Min</th><th>RPE</th></tr></thead><tbody>'+a.map(function(e){return '<tr><td>'+fd(e.date)+'</td><td>'+esc(e.tipo)+'</td><td>'+e.min+'</td><td>'+e.rpe+'</td></tr>'}).join("")+'</tbody></table></div></div>'}
+  return '<div class="card"><h3>Your latest RPE</h3><div class="tw"><table><thead><tr><th>Date</th><th>Session</th><th>RPE</th></tr></thead><tbody>'+a.map(function(e){return '<tr><td>'+fd(e.date)+'</td><td>'+esc(e.tipo)+'</td><td>'+e.rpe+'</td></tr>'}).join("")+'</tbody></table></div></div>'}
 function thread(msgs,me){if(!msgs.length)return '<div class="thread" id="thread"><p class="muted">No messages yet.</p></div>';
   return '<div class="thread" id="thread">'+msgs.map(function(m){var d=new Date(m.t);return '<div class="msg'+(m.from===me?" me":"")+'">'+(m.team?'<span class="to">'+ic("mega","sm")+'To the whole team</span>':'')+esc(m.text)+'<time>'+fds(iso(d))+" · "+pad(d.getHours())+":"+pad(d.getMinutes())+'</time></div>'}).join("")+'</div>'}
 function composer(ph){return '<div class="composer"><input type="text" id="msg" data-bind="msg" value="'+esc(D.msg)+'" placeholder="'+ph+'" maxlength="500" autocomplete="off"><button class="btn pri" data-act="send">'+ic("send","sm")+'Send</button></div>'}
@@ -450,10 +456,10 @@ function vPanel(){
    tile("Wellness answered",resp.length+'<small> / '+ps.length+'</small>',resp.length<ps.length?(ps.length-resp.length)+" not answered":"Everyone has answered")+
    tile("Average wellness index",tm==null?"–":r1(tm)+'<small> / 50</small>',tm==null?"No answers this day":pm==null?"Lower is better":(tm-pm>=0?"+":"")+r1(tm-pm)+" vs previous 7 days · lower is better")+
    tile("Alerts",'<span style="color:var(--bad)">'+red.length+'</span><small> red · </small><span style="color:var(--warn)">'+amb.length+'</span><small> amber</small>',"Based on wellness answers")+
-   tile("Average load of the day",lm==null?"–":Math.round(lm)+'<small> AU</small>',lds.length?lds.length+" RPE received (RPE × minutes)":"No RPE this day")+
+   tile("Average load of the day",lm==null?"–":Math.round(lm)+'<small> AU</small>',lds.length?lds.length+(lds.length===1?" player":" players")+" with load (RPE × minutes)":rows.some(function(r){return rOf(r.p.id,d).length})?"Set the session duration below":"No RPE this day")+
    tile("Available",disp+'<small> / '+tot+'</small>',(tot-disp)+" limited, injured or out")+'</div>';
   var at=red.concat(amb);
-  h+=vReminder(rows,d);
+  h+=vReminder(rows,d)+vSessions(d);
   h+='<div class="card"><h3>Who to check today</h3>'+(at.length?'<div class="att">'+at.map(function(r){return '<button data-act="sp" data-v="'+r.p.id+'"><span class="pill '+r.st.st+'">'+(r.st.st==="r"?"Red":"Amber")+'</span><span><b>'+esc(r.p.name)+'</b><span class="why">'+esc(r.st.why.join(" · "))+(r.st.e.c?' · “'+esc(r.st.e.c)+'”':'')+'</span></span>'+ic("chev","chev")+'</button>'}).join("")+'</div>':'<p class="muted">'+(resp.length?"Nobody in amber or red with this day's answers.":"No wellness answers for this day yet.")+'</p>')+'</div>';
   if(S.sp&&S.players[S.sp])h+=vDetalle(S.sp);
   h+='<div class="card"><div class="row between"><h3>Squad · '+fd(d)+'</h3><span class="muted small">Tap a row to see the player. Scale 1-10: higher is worse.</span></div><div class="tw"><table><thead><tr><th>Player</th><th>Status</th>'+ITEMS.map(function(it){return '<th>'+it.sh+'</th>'}).join("")+'<th>Total</th><th>Vs. own avg</th><th>Flag</th><th>Day load</th><th>7-day load</th></tr></thead><tbody>'+
@@ -468,12 +474,19 @@ function vPanel(){
   return h;
 }
 function tile(k,v,d){return '<div class="tile"><span class="k">'+k+'</span><span class="v">'+v+'</span><span class="d">'+d+'</span></div>'}
-function missing(rows,kind){return rows.filter(function(r){return r.p.status!=="les"&&(kind==="w"?!r.st:r.ld==null)}).map(function(r){return r.p})}
+function missing(rows,kind){return rows.filter(function(r){return r.p.status!=="les"&&(kind==="w"?!r.st:!rOf(r.p.id,S.date).length)}).map(function(r){return r.p})}
 function remindText(kind,ps,d){var day=d===today()?"today":fd(d),names=ps.map(function(p){return "• "+p.name}).join("\n"),url=location.origin+location.pathname;
   return (kind==="w"?"Wellness reminder for "+day+". Still missing:\n"+names+"\n\nPlease fill it in before training (1 minute):\n":"Session RPE reminder for "+day+". Still missing:\n"+names+"\n\nPlease send it now (10 to 30 minutes after the session):\n")+url}
 function vReminder(rows,d){var mw=missing(rows,"w"),mr=missing(rows,"r");
   function line(kind,ps,label){return '<div class="row between" style="gap:8px"><span><b>'+label+'</b> <span class="muted small">'+(ps.length?ps.length+" missing: "+esc(ps.slice(0,6).map(function(p){return p.name}).join(", "))+(ps.length>6?" and "+(ps.length-6)+" more":""):"Everyone has sent it")+'</span></span>'+(ps.length?'<span class="row" style="gap:6px"><button class="btn sm" data-act="remind" data-v="'+kind+'">'+ic("copy","sm")+'Copy reminder</button><a class="btn sm" href="https://wa.me/?text='+encodeURIComponent(remindText(kind,ps,d))+'" target="_blank" rel="noopener">'+ic("chat","sm")+'Open WhatsApp</a></span>':'')+'</div>'}
   return '<div class="card"><h3>Reminders · '+fd(d)+'</h3>'+line("w",mw,"Wellness")+line("r",mr,"Session RPE")+'<p class="muted small">Injured players are left out. “Open WhatsApp” lets you pick the team group or a chat; the message includes the app link.</p><div id="remout"></div></div>'}
+function vSessions(d){var ps=activos();
+  return '<div class="card"><div class="row between"><h3>Session duration · '+fd(d)+'</h3><span class="muted small">Players only send RPE. Load = RPE × the minutes set here.</span></div>'+
+   '<div class="srows">'+TIPOS.map(function(t){var k=d+"_"+t,n=0,sum=0,m=S.sess[k];
+     ps.forEach(function(p){rOf(p.id,d).forEach(function(e){if(e.tipo===t){n++;sum+=e.rpe}})});
+     var id="sd-"+t,val=D.sd[id]!=null?D.sd[id]:(m||"");
+     return '<div class="srow"><span><b>'+t+'</b><span class="muted small">'+(n?n+(n===1?" player":" players")+' · avg RPE '+r1(sum/n)+(m?' · '+Math.round(sum/n*m)+' AU':''):'No RPE received')+'</span></span><input type="number" id="'+id+'" inputmode="numeric" min="1" max="400" step="1" value="'+esc(val)+'" placeholder="min" aria-label="'+t+' minutes"><button class="btn sm pri" data-act="savesess" data-v="'+t+'">Save</button>'+(m?'<button class="btn sm icon" data-act="delsess" data-v="'+t+'" aria-label="Clear '+t+' duration">'+ic("x","sm")+'</button>':'<span></span>')+'</div>'}).join("")+'</div>'+
+   (TIPOS.some(function(t){var n=0;ps.forEach(function(p){rOf(p.id,d).forEach(function(e){if(e.tipo===t)n++})});return n&&!S.sess[d+"_"+t]})?note("Some sessions have RPE but no duration yet, so their load is not counted. Type the minutes and press Save."):'')+'</div>'}
 function teamW(date){var v=[];activos().forEach(function(p){var e=wOf(p.id,date);if(e)v.push(wTotal(e))});return mean(v)}
 function teamL(date){var v=[];activos().forEach(function(p){var l=loadDay(p.id,date);if(l!=null)v.push(l)});return mean(v)}
 function vDetalle(pid){var p=S.players[pid],d=S.date,days=[];for(var j=27;j>=0;j--)days.push(addDays(d,-j));
@@ -525,7 +538,7 @@ function vDatos(){var nw=0,nr=0,k,j;for(k in S.wellness)for(j in (S.wellness[k].
   return '<div class="card"><h2>Export to Excel</h2><p class="muted">CSV files with one row per player and date, ready to merge with GPS, CMJ and encoder data by player and day.</p><div class="row"><button class="btn pri" data-act="csv" data-v="w">'+ic("down","sm")+'Wellness · '+nw+' rows</button><button class="btn pri" data-act="csv" data-v="r">'+ic("down","sm")+'RPE · '+nr+' rows</button><button class="btn" data-act="csv" data-v="p">'+ic("down","sm")+'Squad</button></div><p class="muted small">The export includes the full history. Semicolon separator.</p></div>'+
   '<div class="card"><h2>How it is calculated</h2>'+
    '<p><b>Wellness.</b> Five questions from 1 to 10 where higher is always worse: lack of sleep, fatigue, muscle soreness, stress and low mood. The index is the sum (5 to 50).</p>'+
-   '<p><b>RPE.</b> Perceived exertion of the session from 1 to 10. Load (sRPE) is RPE × minutes, in arbitrary units.</p>'+
+   '<p><b>RPE.</b> Players send the perceived exertion of the session from 1 to 10. The staff sets the duration of each session (Dashboard, Session duration). Load (sRPE) is RPE × minutes, in arbitrary units.</p>'+
    '<p><b>Flag.</b> Red if any question is 8 or more, or if the total is 2 standard deviations above the player’s own 28-day average. Amber if any is 6 or 7, or the total is 1 deviation above. With fewer than 7 previous answers, fixed cut-offs are used: 25 amber and 35 red.</p>'+
    note('These cut-offs are a practical starting point, not validated thresholds. Wellness alone does not decide anything: it tells you who to talk to, alongside GPS, CMJ and load.')+'</div>'+
   '<div class="card"><h2>How players get in</h2><p>Each player has a personal code. In Squad, press “Copy link” and send it to them. Opening the link on their phone logs them in without signing up and it is remembered for next time. Ask them to add the page to their home screen.</p></div>'+
@@ -535,7 +548,7 @@ function csvRows(kind){var rows=[],ps=S.players,k,j,e,p,sep=";";
   if(kind==="w"){rows.push(["date","player","number","position","lack_of_sleep","fatigue","muscle_soreness","stress","low_mood","wellness_total","hours_slept","sore_area","comment"]);
     for(k in S.wellness){p=ps[k]||{};for(j in (S.wellness[k].entries||{})){e=S.wellness[k].entries[j];if(e)rows.push([j,p.name,p.num,p.pos,e.s,e.f,e.d,e.e,e.a,wTotal(e),e.h,(e.zona||[]).join(", "),e.c])}}}
   else if(kind==="r"){rows.push(["date","player","number","position","session_type","minutes","rpe","srpe_au"]);
-    for(k in S.rpe){p=ps[k]||{};for(j in (S.rpe[k].entries||{})){e=S.rpe[k].entries[j];if(e)rows.push([e.date,p.name,p.num,p.pos,e.tipo,e.min,e.rpe,e.rpe*e.min])}}}
+    for(k in S.rpe){p=ps[k]||{};for(j in (S.rpe[k].entries||{})){e=S.rpe[k].entries[j];if(e)var mm=sMin(e);rows.push([e.date,p.name,p.num,p.pos,e.tipo,mm,e.rpe,mm?e.rpe*mm:""])}}}
   else if(kind==="m"){rows.push(["date","player","number","position","exercise","one_rm_kg"]);var EN={};EXS.forEach(function(e){EN[e[0]]=e[1]});
     S.onerm.forEach(function(r){p=ps[r.pid]||{};rows.push([r.date,p.name,p.num,p.pos,EN[r.ex],r.kg])})}
   else{rows.push(["player","number","position","status","note"]);plist().forEach(function(x){rows.push([x.name,x.num,x.pos,(EST[x.status]||EST.ok)[0],x.note])})}
@@ -589,7 +602,7 @@ function vTests(){var ps=activos(),d=S.tdate;
    '<div class="row"><button class="btn" data-act="csv" data-v="m">'+ic("down","sm")+'Export 1RM history (CSV)</button></div></div>'}
 
 /* ---------- acciones ---------- */
-function setPath(path,val){var a=path.split(".");if(a.length===1){if(a[0]==="date")S.date=val;else if(a[0]==="tdate"){S.tdate=val;D.rmd={}}else D[a[0]]=val}else D[a[0]][a[1]]=val}
+function setPath(path,val){var a=path.split(".");if(a.length===1){if(a[0]==="date"){S.date=val;D.sd={}}else if(a[0]==="tdate"){S.tdate=val;D.rmd={}}else D[a[0]]=val}else D[a[0]][a[1]]=val}
 function openW(date){var e=wOf(S.me,date);D.w=e?{date:date,s:e.s,f:e.f,d:e.d,e:e.e,a:e.a,h:e.h||"",zona:(e.zona||[]).slice(),c:e.c||""}:{date:date,s:0,f:0,d:0,e:0,a:0,h:"",zona:[],c:""}}
 function noop(){}
 function markReadPlayer(pid){if(!unreadPlayer(pid))return;var now=Date.now();if(S.chats[pid])S.chats[pid].readPlayer=now;if(S.chats.team){S.chats.team.reads=S.chats.team.reads||{};S.chats.team.reads[pid]=now}call("player_mark_read").catch(noop)}
@@ -598,19 +611,23 @@ var ACT={
  tab:function(v){S.tab=v;S.confirm=null},
  login:function(){doLogin(D.code);return "norender"},
  logout:function(){logout();return "norender"},
- pv:function(v){S.pv=v;D.msg="";S.confirm=null;if(v!=="home")S.sent=null;if(v==="wellness")openW(today());if(v==="rpe")D.r={date:today(),tipo:"Pitch",min:"",rpe:0};if(v==="chat")markReadPlayer(S.me)},
+ pv:function(v){S.pv=v;D.msg="";S.confirm=null;if(v!=="home")S.sent=null;if(v==="wellness")openW(today());if(v==="rpe")D.r={date:today(),tipo:"Pitch",rpe:0};if(v==="chat")markReadPlayer(S.me)},
  pick:function(v,el){setPath(el.getAttribute("data-b"),+v)},
  zona:function(v){var i=D.w.zona.indexOf(v);if(i>=0)D.w.zona.splice(i,1);else D.w.zona.push(v)},
  saveW:function(){var w=D.w,me=S.me,e={date:w.date,s:w.s,f:w.f,d:w.d,e:w.e,a:w.a,h:w.h===""?null:+w.h,zona:w.d>=4?w.zona.slice():[],c:(w.c||"").trim()},old=wOf(me,w.date);
    ent(S.wellness,me).entries[w.date]=e;S.pv="home";S.sent="Wellness for "+fd(w.date)+" sent. Thank you.";
    call("player_save_wellness",{p_date:e.date,p_s:e.s,p_f:e.f,p_d:e.d,p_e:e.e,p_a:e.a,p_h:e.h,p_zona:e.zona,p_c:e.c}).then(refresh,function(){if(!S.role)return;S.sent=null;if(old)S.wellness[me].entries[w.date]=old;else delete S.wellness[me].entries[w.date];S.pv="wellness";render()})},
- saveR:function(){var r=D.r,me=S.me,k=r.date+"_"+r.tipo,e={date:r.date,tipo:r.tipo,min:Math.round(+r.min),rpe:r.rpe},old=S.rpe[me]&&S.rpe[me].entries[k];
+ saveR:function(){var r=D.r,me=S.me,k=r.date+"_"+r.tipo,e={date:r.date,tipo:r.tipo,min:null,rpe:r.rpe},old=S.rpe[me]&&S.rpe[me].entries[k];
    ent(S.rpe,me).entries[k]=e;S.pv="home";S.sent="RPE for "+fd(r.date)+" sent. Thank you.";
-   call("player_save_rpe",{p_date:e.date,p_tipo:e.tipo,p_min:e.min,p_rpe:e.rpe}).then(refresh,function(){if(!S.role)return;S.sent=null;if(old)S.rpe[me].entries[k]=old;else delete S.rpe[me].entries[k];S.pv="rpe";render()})},
+   call("player_save_rpe",{p_date:e.date,p_tipo:e.tipo,p_min:null,p_rpe:e.rpe}).then(refresh,function(){if(!S.role)return;S.sent=null;if(old)S.rpe[me].entries[k]=old;else delete S.rpe[me].entries[k];S.pv="rpe";render()})},
  send:function(){var tx=(D.msg||"").trim();if(!tx)return;var staff=S.role==="staff",id=staff?S.chat:S.me;if(!id)return;
    var c=S.chats[id]||(S.chats[id]={msgs:[]});c.msgs.push({t:Date.now(),from:staff?"staff":"player",text:tx});D.msg="";
    (staff?call("staff_send",{p_player:id==="team"?null:id,p_body:tx}):call("player_send",{p_body:tx})).then(refresh,function(){if(!S.role)return;D.msg=tx;c.msgs.pop();render()})},
- day:function(v){S.date=v==="0"?today():addDays(S.date,+v)},
+ day:function(v){S.date=v==="0"?today():addDays(S.date,+v);D.sd={}},
+ savesess:function(t){var el=document.getElementById("sd-"+t),x=el?+el.value:0,d=S.date;
+   if(!(x>=1&&x<=400&&Math.round(x)===x)){toast("Use whole minutes between 1 and 400");return "norender"}
+   S.sess[d+"_"+t]=x;delete D.sd["sd-"+t];call("staff_save_session",{p_date:d,p_tipo:t,p_min:x}).then(function(){toast(t+" · "+fd(d)+": "+x+" min saved");return refresh()},function(){refresh()})},
+ delsess:function(t){var d=S.date;delete S.sess[d+"_"+t];delete D.sd["sd-"+t];call("staff_save_session",{p_date:d,p_tipo:t,p_min:null}).then(refresh,function(){refresh()})},
  sp:function(v){S.sp=v||null;if(v)setTimeout(function(){var e=document.getElementById("detalle");if(e)e.scrollIntoView({block:"start",behavior:"smooth"})},30)},
  detalle:function(v){S.tab="panel";ACT.sp(v)},
  openchat:function(v){S.tab="chat";S.chat=v;markReadStaff(v)},
@@ -641,10 +658,10 @@ var ACT={
 document.addEventListener("click",function(ev){var el=ev.target.closest("[data-act]");if(!el)return;var a=el.getAttribute("data-act");if(!ACT[a]||el.disabled)return;
   if(el.tagName==="TR"&&ev.target.closest("button,select,input"))return;
   var r=ACT[a](el.getAttribute("data-v"),el);if(r!=="norender")render()});
-document.addEventListener("input",function(ev){if(ev.target.id&&ev.target.id.indexOf("rm-")===0){D.rmd[ev.target.id]=ev.target.value;return}var el=ev.target,b=el.getAttribute&&el.getAttribute("data-bind");if(!b)return;setPath(b,el.value);
-  if(b==="w.date"){if(el.value){openW(el.value);render()}}else if(b==="date"||b==="tdate"){if(el.value)render()}else if(b==="r.min"||b==="r.date"||b==="r.tipo"){var btn=document.querySelector('[data-act="saveR"]');if(btn&&b==="r.min")render()}});
+document.addEventListener("input",function(ev){if(ev.target.id&&ev.target.id.indexOf("rm-")===0){D.rmd[ev.target.id]=ev.target.value;return}if(ev.target.id&&ev.target.id.indexOf("sd-")===0){D.sd[ev.target.id]=ev.target.value;return}var el=ev.target,b=el.getAttribute&&el.getAttribute("data-bind");if(!b)return;setPath(b,el.value);
+  if(b==="w.date"){if(el.value){openW(el.value);render()}}else if(b==="date"||b==="tdate"){if(el.value)render()}});
 document.addEventListener("change",function(ev){var el=ev.target,a=el.getAttribute&&el.getAttribute("data-act-change");if(a==="pstatus")savePlayer(el.getAttribute("data-v"),{status:el.value})});
-document.addEventListener("keydown",function(ev){if(ev.key!=="Enter")return;var id=ev.target.id;if(id==="msg"){ACT.send();render()}else if(id==="code"){doLogin(D.code)}else if(id==="np-name"||id==="np-num"){ACT.addp();render()}});
+document.addEventListener("keydown",function(ev){if(ev.key!=="Enter")return;var id=ev.target.id;if(id==="msg"){ACT.send();render()}else if(id.indexOf("sd-")===0){if(ACT.savesess(id.slice(3))!=="norender")render()}else if(id==="code"){doLogin(D.code)}else if(id==="np-name"||id==="np-num"){ACT.addp();render()}});
 /* tooltip */
 var tip=document.getElementById("tip");
 function showTip(ev){var el=ev.target.closest&&ev.target.closest("[data-tip]");if(!el){tip.hidden=true;return}tip.textContent=el.getAttribute("data-tip");tip.hidden=false;

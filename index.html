@@ -290,6 +290,7 @@ var EST={ok:["Available","g"],lim:["Limited","a"],les:["Injured","r"],baja:["Out
 var COLLS=["players","wellness","rpe","chats","config"];
 
 /* ---------- estado ---------- */
+var APP_URL="https://dafe17051-spec.github.io/Hegelmann-wellness/";
 var API="https://qzmnfxujyxtsshrmyhkc.supabase.co/rest/v1/rpc/",KEY="sb_publishable_iZS_6Vdo-loKba416ioBZg_Y5BHR-im";
 var EXS=[["squat","Back squat"],["bench","Bench press"],["benchpull","Bench pull"],["hipthrust","Hip thrust"],["deadlift","Deadlift"]],PCTS=[100,90,80,70,60];
 var S={sess:{},onerm:[],tdate:today(),rm:null,role:null,code:null,tab:"panel",date:today(),me:null,pv:"home",sp:null,chat:null,players:{},wellness:{},rpe:{},chats:{},confirm:null,sent:null,loginErr:""};
@@ -475,7 +476,7 @@ function vPanel(){
 }
 function tile(k,v,d){return '<div class="tile"><span class="k">'+k+'</span><span class="v">'+v+'</span><span class="d">'+d+'</span></div>'}
 function missing(rows,kind){return rows.filter(function(r){return r.p.status!=="les"&&(kind==="w"?!r.st:!rOf(r.p.id,S.date).length)}).map(function(r){return r.p})}
-function remindText(kind,ps,d){var day=d===today()?"today":fd(d),names=ps.map(function(p){return "• "+p.name}).join("\n"),url=location.origin+location.pathname;
+function remindText(kind,ps,d){var day=d===today()?"today":fd(d),names=ps.map(function(p){return "• "+p.name}).join("\n"),url=APP_URL;
   return (kind==="w"?"Wellness reminder for "+day+". Still missing:\n"+names+"\n\nPlease fill it in before training (1 minute):\n":"Session RPE reminder for "+day+". Still missing:\n"+names+"\n\nPlease send it now (10 to 30 minutes after the session):\n")+url}
 function vReminder(rows,d){var mw=missing(rows,"w"),mr=missing(rows,"r");
   function line(kind,ps,label){return '<div class="row between" style="gap:8px"><span><b>'+label+'</b> <span class="muted small">'+(ps.length?ps.length+" missing: "+esc(ps.slice(0,6).map(function(p){return p.name}).join(", "))+(ps.length>6?" and "+(ps.length-6)+" more":""):"Everyone has sent it")+'</span></span>'+(ps.length?'<span class="row" style="gap:6px"><button class="btn sm" data-act="remind" data-v="'+kind+'">'+ic("copy","sm")+'Copy reminder</button><a class="btn sm" href="https://wa.me/?text='+encodeURIComponent(remindText(kind,ps,d))+'" target="_blank" rel="noopener">'+ic("chat","sm")+'Open WhatsApp</a></span>':'')+'</div>'}
@@ -647,13 +648,15 @@ var ACT={
  remind:function(v){var d=S.date,rows=activos().map(function(p){return {p:p,st:estado(p.id,d),ld:loadDay(p.id,d)}}),txt=remindText(v,missing(rows,v),d);
    function fb(){var o=document.getElementById("remout");if(!o)return;o.innerHTML='<textarea id="remta" rows="7" readonly></textarea>';var ta=document.getElementById("remta");ta.value=txt;ta.select();toast("Select the text and copy it")}
    try{navigator.clipboard.writeText(txt).then(function(){toast("Reminder copied. Paste it in WhatsApp")},fb)}catch(x){fb()}return "norender"},
- copylink:function(v){var p=S.players[v],url=location.origin+location.pathname+"#c="+p.code;
+ copylink:function(v){var p=S.players[v],url=APP_URL+"#c="+p.code;
    try{navigator.clipboard.writeText(url).then(function(){toast(p.name+"'s link copied")},function(){toast(p.name+"'s code: "+p.code)})}catch(x){toast(p.name+"'s code: "+p.code)}return "norender"},
  setcode:function(){var p=(D.newcode||"").trim().toUpperCase();if(p.length<6){toast("Use at least 6 characters");return}
    call("staff_set_code",{p_new:p}).then(function(){S.code=p;store(p);D.newcode="";toast("Staff code changed");render()},noop)},
  csv:function(v){var name={w:"wellness",r:"rpe",p:"squad",m:"one_rm"}[v]+"_hegelmann_"+today()+".csv";
-   refresh(3650).then(function(){if(dbState!=="ok"){toast("Offline: could not export");return}
-     try{var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csvRows(v)],{type:"text/csv;charset=utf-8"}));a.download=name;document.body.appendChild(a);a.click();a.remove();toast("File downloaded")}catch(x){toast("Could not download the file")}});return "norender"}
+   refresh(3650).then(function(){if(dbState!=="ok"){toast("Offline: could not export");return}var data=csvRows(v);
+     function anchor(){try{var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:"text/csv;charset=utf-8"}));a.download=name;document.body.appendChild(a);a.click();a.remove();toast("File downloaded")}catch(x){toast("Could not download the file")}}
+     var cu=window.claude&&window.claude.use;if(!cu){anchor();return}
+     cu("downloads").then(function(dl){if(!dl){anchor();return}return dl.save({filename:name,data:data}).then(function(){toast("File saved")},function(){toast("Download cancelled")})},anchor)});return "norender"}
 };
 document.addEventListener("click",function(ev){var el=ev.target.closest("[data-act]");if(!el)return;var a=el.getAttribute("data-act");if(!ACT[a]||el.disabled)return;
   if(el.tagName==="TR"&&ev.target.closest("button,select,input"))return;
